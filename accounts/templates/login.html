@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <title>Login</title>
+</head>
+<body>
+    {% if messages %}
+        {% for me in messages %}
+            <div class="{% if me.tags == 'error' %}error{% endif %}{% if me.tags == 'success' %}success{% endif %}">
+                {{ me }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <div class="video-container">
+        <video autoplay loop muted playsinline class="background">
+            <source src="{% static '1.mp4' %}" type="video/webm">
+            Your browser does not support video playback.
+        </video>
+    </div>
+    <div class="content">
+        <div class="form-container">
+            <h1 class="form-title">Login</h1>
+            <form class="login-form" method="post">
+                {% csrf_token %}
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" class="text-input" placeholder="Enter your email" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="text-input" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="login-submit">Login</button>
+            </form>
+            <p class="signup-text">
+                <a href="#" class="forgot-password-link" id="resetPasswordLink">Reset Password</a>
+            </p>
+            {% if account %}
+                <p class="signup-text">Don't have an account? <a href="{% url 'signup_view' %}" class="signup-link">Sign up now</a></p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('resetPasswordLink').onclick = function() {
+            var email = document.getElementById('email').value; 
+            console.log(email); 
+            if (email) {
+                window.location.href = "{% url 'reset_password' %}?email=" + encodeURIComponent(email);
+            } else {
+                alert('من فضلك أدخل بريدك الإلكتروني أولاً.');
+            }
+        };
+    </script>
+</body>
+</html>
