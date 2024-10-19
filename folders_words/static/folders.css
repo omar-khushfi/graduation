@@ -1,0 +1,344 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f4f8;
+    color: #333;
+    line-height: 1.6;
+}
+.topnav {
+    background-color: #2c3e50;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.topnav .left-menu {
+    display: flex;
+    flex-grow: 1;
+}
+.topnav .left-menu a {
+    color: #ecf0f1;
+    text-decoration: none;
+    padding: 10px 16px;
+    font-size: 16px;
+    display: inline-block;
+}
+.topnav .left-menu a:hover {
+    background-color: #34495e;
+}
+.search-container {
+    flex-grow: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.search-container input[type="text"] {
+    padding: 6px;
+    margin-right: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+}
+.search-container button {
+    padding: 6px 10px;
+    background-color: #3498db;
+    color: white;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.search-container button:hover {
+    background-color: #2980b9;
+}
+.topnav .profile {
+    display: flex;
+    align-items: center;
+}
+.topnav .profile a {
+    color: #ecf0f1;
+    text-decoration: none;
+    padding: 10px 16px;
+    font-size: 16px;
+}
+.side-menu {
+    display: none;
+    background-color: #2c3e50;
+    position: fixed;
+    top: 50px;
+    right: 0;
+    height: calc(100vh - 60px);
+    width: 250px;
+    padding-top: 60px;
+    z-index: 1;
+    overflow-x: hidden;
+}
+.side-menu a {
+    padding: 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: white;
+    display: block;
+}
+.side-menu a:hover {
+    background-color: #34495e;
+}
+.open-btn {
+    font-size: 24px;
+    cursor: pointer;
+    background-color: transparent;
+    color: #ecf0f1;
+    border: none;
+    display: none;
+}
+.open-btn:hover {
+    color: #3498db;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+h1 {
+    color: #2c3e50;
+    text-align: center;
+    margin: 20px 0;
+    font-size: 28px;
+    
+}
+.folder-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 50px;
+}
+.folder {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: calc(33.333% - 20px);
+    min-width: 200px;
+    height: 200px;
+}
+.folder:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    background-color: #e8f4fc;
+}
+.folder h3 {
+    color: #3498db;
+    margin: 0;
+    font-size: 20px;
+}
+.add-folder {
+    background-color: #2ecc71;
+    color: #ffffff;
+    font-size: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+.add-folder:hover {
+    background-color: #27ae60;
+}
+.folder.add-folder {
+    perspective: 1000px;
+    background: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+.flip-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+}
+
+.flip-card.flipped {
+    transform: rotateY(180deg);
+}
+
+.flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer; /* إضافة مؤشر يد للإشارة إلى إمكانية النقر */
+}
+
+.flip-card-front {
+    background-color: #2ecc71;
+    color: white;
+    font-size: 48px;
+}
+
+.flip-card-back {
+    background-color: white;
+    transform: rotateY(180deg);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.folder-name-input {
+    padding: 10px;
+    border: 2px solid #3498db;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.add-button {
+    padding: 10px 20px;
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.add-button:hover {
+    background-color: #27ae60;
+}
+
+.flip-card-front:hover {
+    background-color: #27ae60;
+}
+
+/* إضافة أيقونة إلغاء في الزاوية العليا */
+.cancel-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    color: #666;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.cancel-icon:hover {
+    color: #e74c3c;
+}
+.pagination {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+    list-style-type: none;
+}
+
+.page-item {
+    margin: 0 5px;
+}
+
+.page-link {
+    color: #007bff;
+    padding: 8px 16px;
+    text-decoration: none;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.page-link:hover {
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+}
+
+.page-item.active .page-link {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+
+@media screen and (max-width: 768px) {
+    .topnav .left-menu a {
+        display: none;
+    }
+    .topnav .profile {
+        display: none; /* إخفاء زر "My Profile" على الشاشات الصغيرة */
+    }
+    .open-btn {
+        display: block;
+    }
+    .side-menu {
+        display: none;
+    }
+    .search-container {
+        justify-content: center;
+    }
+    .search-container input[type="text"] {
+   width: 200px;
+    margin-right: 2px;
+}
+}
+
+@media screen and (min-width: 769px) {
+    .side-menu {
+        display: none;
+    }
+    .search-container input[type="text"] {
+   width: 200px;
+    margin-right: 2px;
+}
+}
+
+@media screen and (max-width: 480px) {
+    .folder {
+        width: 100%;
+    }
+    h1 {
+        font-size: 22px;
+    }
+    .search-container input[type="text"] {
+   width: 200px;
+    margin-right: 2px;
+}
+}
+.error{
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 40px;
+    background-color: #f75b5bd4;
+    font-weight: bold;
+    color: white;
+    font-size: x-large;
+    justify-content: center;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+}
