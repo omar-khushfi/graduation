@@ -27,3 +27,11 @@ class Language(models.Model):
         return self.user.username+" "+self.type
     
     
+class Translate(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="translations")
+    language = models.ForeignKey(Language,on_delete=models.CASCADE)  
+    translation = models.CharField(max_length=255)  
+    voice=models.FileField(upload_to="voices/")
+    def __str__(self):
+        return self.user.username+"__"+self.translation

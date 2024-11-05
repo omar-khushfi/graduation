@@ -5,3 +5,4 @@ from .models import *
 admin.site.register(Folder)
 admin.site.register(Word)
 admin.site.register(Language)
+admin.site.register(Translate)

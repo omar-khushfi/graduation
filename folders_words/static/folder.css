@@ -16,7 +16,13 @@ body {
     color: var(--text-color);
     line-height: 1.6;
 }
-
+.add_word{
+    text-decoration: none;
+    background: green;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+}
 /* Styles for Top Navigation Bar */
 .topnav {
     background-color: #2c3e50;

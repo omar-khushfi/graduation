@@ -51,6 +51,7 @@
                     <button id="searchButton">Search</button>
                 </div>
                <div class="container-button-delete-all"> <button id="deleteAll">Delete Selected Words</button></div>
+               <a href="{% url 'add_word' folder.pk %}" class="add_word">Add word</a>
                 <div class="select-all-container">
                     <label for="selectAllSmall" class="select-all-label">Select
                         All</label>
@@ -61,34 +62,27 @@
                 <thead>
                     <tr>
                         <th><input type="checkbox" id="selectAll"></th>
-                        <th>Original</th>
-                        <th>English</th>
-                        <th>Spanish</th>
-                        <th>French</th>
-                        <th>Arabic</th>
-                        <th>Actions</th>
+                       {% for la in languages %}
+                       <th>{{la.type}}</th>
+                       {% endfor %}
+                       <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td class="checkbox-column"><input type="checkbox"></td>
-                        <td data-label="Original">Hello <i
-                                class="fas fa-volume-up pronounce-icon"></i></td>
-                        <td data-label="English">Hello <i
-                                class="fas fa-volume-up pronounce-icon"></i></td>
-                        <td data-label="Spanish">Hola <i
-                                class="fas fa-volume-up pronounce-icon"></i></td>
-                        <td data-label="French">Bonjour <i
-                                class="fas fa-volume-up pronounce-icon"></i></td>
-                        <td data-label="Arabic">مرحبا <i
-                                class="fas fa-volume-up pronounce-icon"></i></td>
+                    {% for translat in translates %}
+                    <tr data-word-id="{{ translat.0.word.pk }}">
+                        <td class="checkbox-column"><input type="checkbox">
+                        {% for word in translat %}
+                            <td data-label="Original">{{ word.translation }}
+                                <i class="fas fa-volume-up pronounce-icon" onclick="playAudio('{{ word.voice.url }}')"></i>
+                            </td>
+                        {% endfor %}
                         <td data-label="Actions" class="action-buttons">
-                            <button class="edit">Edit</button>
+                            <button class="edit" onclick="location.href='{% url 'edit_word' pk=folder.pk id=translat.0.word.pk %}'">Edit</button>
                             <button class="delete">Delete</button>
                         </td>
                     </tr>
-
-                    <!-- إضافة المزيد من الصفوف حسب الحاجة -->
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -124,33 +118,83 @@
        
        
 
-        deleteAllButton.addEventListener('click', function() {
-            wordTableRows.forEach(row => {
-                const checkbox = row.querySelector('input[type="checkbox"]');
-                if (checkbox.checked) {
-                    row.remove(); // Remove checked rows
+        document.getElementById('deleteAll').addEventListener('click', function() {
+            const selectedWordIds = [];
+            document.querySelectorAll('.word-table tbody input[type="checkbox"]:checked').forEach(checkbox => {
+                const row = checkbox.closest('tr');
+                selectedWordIds.push(row.dataset.wordId);
+            });
+            
+            if (selectedWordIds.length === 0) {
+                alert("No words selected for deletion.");
+                return;
+            }
+            fetch('{% url "delete_selected_words" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}', 
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ word_ids: selectedWordIds }) 
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    
+                    document.querySelectorAll('.word-table tbody input[type="checkbox"]:checked').forEach(checkbox => {
+                        checkbox.closest('tr').remove();
+                    });
+                    document.getElementById('selectAll').checked = false;
+                    alert("Selected words deleted successfully.");
+                } else {
+                    alert("Failed to delete selected words.");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred while deleting words.");
+            });
+        });
+
+
+        document.querySelectorAll('.pronounce-icon').forEach(icon => {
+            icon.addEventListener('click', function() {
+           
+            });
+        });
+         function playAudio(audioUrl) {
+       
+        const audio = new Audio(audioUrl);
+        
+        audio.play();
+    }
+
+      
+
+    document.querySelectorAll('.delete').forEach(button => {
+        button.addEventListener('click', function() {
+            const row = button.closest('tr');
+            const folderId = "{{ folder.pk }}";
+            const wordId = row.dataset.wordId;
+
+            fetch(`/delete_word/${folderId}/${wordId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    row.remove();  
+                    alert('Word deleted');
+                    location.reload();  
+                } else {
+                    alert('Failed to delete word');
                 }
             });
         });
-        document.querySelectorAll('.pronounce-icon').forEach(icon => {
-            icon.addEventListener('click', function() {
-                alert('Pronunciation feature activated');
-            });
-        });
-
-        document.querySelectorAll('.edit').forEach(button => {
-            button.addEventListener('click', function() {
-                alert('Edit window opened');
-            });
-        });
-
-        document.querySelectorAll('.delete').forEach(button => {
-            button.addEventListener('click', function() {
-                const row = button.closest('tr');
-                row.remove();
-                alert('Word deleted');
-            });
-        });
+    });
         function openNav() {
             if( document.getElementById("sideMenu").style.display == "block")
              document.getElementById("sideMenu").style.display = "none";
