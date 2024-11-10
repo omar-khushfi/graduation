@@ -11,11 +11,15 @@ from django.contrib.auth.hashers import make_password
 from accounts.models import User
 from django.contrib.auth.hashers import check_password
 from django.core.mail import send_mail
+
+from pro import settings
 from .models import *
 import requests
 from django.core.paginator import Paginator,EmptyPage,PageNotAnInteger
 from gtts import gTTS
 import os
+import re
+
 from django.views.decorators.http import require_POST
 
 def translate_text_mymemory(source_text, source_lang, target_lang):
@@ -28,14 +32,18 @@ def translate_text_mymemory(source_text, source_lang, target_lang):
         return "Error: Could not translate."
 
 def generate_pronunciation(word, language, user_id):
-   
-    sanitized_word = word.replace('"', '').replace("'", "").replace("\\", "").replace("/", "")
+    sanitized_word = re.sub(r'[\\/*?:"<>|]', '', word)
     language_code = language.type  
-    save_path = os.path.join("media", "voices", f"user_{user_id}", language_code, f"{sanitized_word}_{language_code}.mp3")
+    save_path = os.path.join(settings.MEDIA_ROOT, "voices", f"user_{user_id}", language_code, f"{sanitized_word}_{language_code}.mp3")
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    tts = gTTS(text=word, lang=language_code)
-    tts.save(save_path)
-    return f"voices/user_{user_id}/{language_code}/{sanitized_word}_{language_code}.mp3"
+
+    try:
+        tts = gTTS(text=word, lang=language_code)
+        tts.save(save_path)
+        return f"voices/user_{user_id}/{language_code}/{sanitized_word}_{language_code}.mp3"
+    except Exception as e:
+        print(f"Error generating pronunciation for {word}: {e}")
+        return None
 
 
 
@@ -112,9 +120,9 @@ class folder(View):
 
                         translated = translate_text_mymemory(nativ_trans.word.content, nativ_trans.language.type, la.type)
                         voice_path = generate_pronunciation(translated, la, user.id)       
+                        
                         qyword=Translate.objects.create(language=la,word=wo,user=user,translation=translated, voice=voice_path)
                     word.append(qyword)
-                           
                 all_translate.append(word)
                 
         

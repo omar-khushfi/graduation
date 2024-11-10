@@ -14,6 +14,7 @@ class Word(models.Model):
     content=models.CharField(max_length=30)
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     folder=models.ForeignKey(Folder,on_delete=models.CASCADE)
+    study=models.BooleanField(default=False)
     def __str__(self):
         return self.user.username+" "+self.content
     
