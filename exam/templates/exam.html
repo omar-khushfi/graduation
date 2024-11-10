@@ -311,9 +311,10 @@
     </div>
 
     <div class="container">
-        <form>
+        <form method="post">
+            {% csrf_token %}
             <input type="hidden" value="{{lang}}" name="lang">
-            <input type="hidden" value="{{current_word}}" name="current_word">
+            <input type="hidden" value="{{current_word.id}}" name="current_word">
             <input type="hidden" value="{{exam.id}}" name="exam">
         <h1>Vocabulary Exam</h1>
         <div class="timer" id="timer">10 s</div>
@@ -345,21 +346,21 @@
         let timerInterval;
 
         function startTimer() {
-            timerInterval = setInterval(() => {
+            {% comment %} timerInterval = setInterval(() => {
                 timer--;
                 document.getElementById('timer').textContent = timer.toString().padStart(2, '0')+' s';
                 if (timer === 0) {
                     clearInterval(timerInterval);
                     submitAnswer();
                 }
-            }, 1000);
+            }, 1000); {% endcomment %}
         }
 
         function resetTimer() {
-            clearInterval(timerInterval);
+            {% comment %} clearInterval(timerInterval);
             timer = 10;
             document.getElementById('timer').textContent = '10';
-            startTimer();
+            startTimer(); {% endcomment %}
         }
 
         function selectOption(option) {

@@ -61,7 +61,7 @@
                         <span>+</span>
                     </div>
                     <div class="flip-card-back">
-                        <form method="post" action="{% url 'folders' %}">
+                        <form method="post" action="{% url 'folders_words:folders' %}">
                             {% csrf_token %}
                         <span class="cancel-icon" onclick="toggleCard(event)">✕</span>
                         <input type="text" class="folder-name-input" id="folderName" name="new_folder" placeholder="folder name" maxlength="25">
@@ -71,7 +71,7 @@
                 </div>
             </div>
             {% for folder in folders %}
-            <div class="folder" onclick="window.location.href='{% url 'folder' folder.id %}'">
+            <div class="folder" onclick="window.location.href='{% url 'folders_words:folder' folder.id %}'">
                 <h3>{{folder.name}}</h3>
             </div>
             {% endfor %}

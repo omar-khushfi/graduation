@@ -20,3 +20,11 @@ class Word_Exam(models.Model):
     exam=models.ForeignKey(Exam,on_delete=models.CASCADE)
     done=models.BooleanField(default=False)
     
+    
+    
+class Answer(models.Model):
+   user=models.ForeignKey(User,on_delete=models.CASCADE)
+   word=models.ForeignKey(Word,on_delete=models.CASCADE)
+   exam=models.ForeignKey(Exam,on_delete=models.CASCADE)
+   answer=models.CharField(max_length=100)
+   is_true=models.BooleanField(default=False)
