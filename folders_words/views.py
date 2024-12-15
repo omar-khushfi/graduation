@@ -33,10 +33,20 @@ def translate_text_mymemory(source_text, source_lang, target_lang):
 
 def generate_pronunciation(word, language, user_id):
     sanitized_word = re.sub(r'[\\/*?:"<>|]', '', word)
-    language_code = language.type  
-    save_path = os.path.join(settings.MEDIA_ROOT, "voices", f"user_{user_id}", language_code, f"{sanitized_word}_{language_code}.mp3")
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-
+    language_code = language.type
+    save_path = os.path.join(
+        settings.MEDIA_ROOT, 
+        "voices", 
+        f"user_{user_id}", 
+        language_code, 
+        f"{sanitized_word}_{language_code}.mp3"
+    )
+    print(f"Save path: {save_path}")
+    try:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    except Exception as e:
+        print(f"Error creating directories: {e}")
+        return None
     try:
         tts = gTTS(text=word, lang=language_code)
         tts.save(save_path)
@@ -44,8 +54,6 @@ def generate_pronunciation(word, language, user_id):
     except Exception as e:
         print(f"Error generating pronunciation for {word}: {e}")
         return None
-
-
 
 ##################################################
 
@@ -221,7 +229,7 @@ class edit_word(View):
         items=request.POST.items()
         for key,value in items:
             if value!="" and key.startswith("translate_"):
-                new_key=key[-2:]
+                new_key=key[10:]
                 try:
                     translate=Translate.objects.get(id=new_key)
                     translate.translation=value

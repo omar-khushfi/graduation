@@ -29,7 +29,7 @@ class login_view(View):
           
             if check_password(password, user.password):
                 login(request, user)
-                return render(request, 'hello.html')
+                return redirect("/")
             else:
                 messages.error(request, "كلمة المرور غير صحيحة")
                 return render(request, 'login.html', {'reset': "أعد تعيين كلمة المرور"})
@@ -73,7 +73,7 @@ class signup_view(View):
             country=country_request)
         if user:
             login(request,user)
-            return render(request,'hello.html')
+            return redirect("/")
     def get(self,request):
         country=User.COUNTRY_CHOICES
         return render(request,'signup.html',{'country':country})

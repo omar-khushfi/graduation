@@ -311,7 +311,10 @@
     </div>
 
     <div class="container">
-        <form method="post">
+       
+          
+            {% if type == "choose" %}
+            <form method="post">
             {% csrf_token %}
             <input type="hidden" value="{{lang}}" name="lang">
             <input type="hidden" value="{{current_word.id}}" name="current_word">
@@ -335,34 +338,95 @@
           
             {% endfor %}
            
-           
+            <button class="submit-btn" type="submit">Submit Answer</button>
         </div>
-        <button class="submit-btn" type="submit">Submit Answer</button>
     </form>
+        {% else %}
+          <h1>تسجيل الصوت</h1>
+    <p>اضغط على "ابدأ التسجيل" لبدء تسجيل الصوت من المايكروفون.</p>
+
+    <button id="start-btn" onclick="startRecording()">ابدأ التسجيل</button>
+    <button id="stop-btn" onclick="stopRecording()" disabled>إيقاف التسجيل</button>
+    <button id="send-btn" onclick="sendRecording()" disabled>إرسال التسجيل</button>
+        <form method="post">
+            {% csrf_token %}
+            <h1> {{ words_with_translate.true.translation }}</h1>
+            <input type="hidden" name="true-translation" value="{{translate.translation}}">
+            <input type="hidden" value="{{lang}}" name="lang">
+            <input type="hidden" value="{{current_word.id}}" name="current_word">
+            <input type="hidden" value="{{exam.id}}" name="exam">
+            <input type="hidden" value="{{type}}" name="type">
+    <p id="status"></p>
+    <textarea id="transcription" name="text_to_voice" readonly placeholder="النص المنطوق سيظهر هنا..."></textarea>
+       
+        <button class="submit-btn" type="submit">Submit Answer</button>
+        </form>
     </div>
 
+  
     <script>
-        let timer = 10;
-        let timerInterval;
+        let recognition;
+        let isRecording = false;
 
-        function startTimer() {
-            {% comment %} timerInterval = setInterval(() => {
-                timer--;
-                document.getElementById('timer').textContent = timer.toString().padStart(2, '0')+' s';
-                if (timer === 0) {
-                    clearInterval(timerInterval);
-                    submitAnswer();
-                }
-            }, 1000); {% endcomment %}
+        // تحقق من دعم SpeechRecognition
+        window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!window.SpeechRecognition) {
+            alert("ميزة تحويل الصوت إلى نص غير مدعومة في هذا المتصفح. استخدم متصفحًا مثل Google Chrome.");
+        } else {
+            recognition = new SpeechRecognition();
+            recognition.lang = "en-US"; // اللغة العربية
+            recognition.continuous = true;
+
+            // عند بدء التعرف على الكلام
+            recognition.onstart = () => {
+                isRecording = true;
+                document.getElementById("status").textContent = "جاري التسجيل...";
+                document.getElementById("start-btn").disabled = true;
+                document.getElementById("stop-btn").disabled = false;
+                document.getElementById("send-btn").disabled = false;
+            };
+
+            // عند استقبال النص المحول
+            recognition.onresult = (event) => {
+                const transcript = event.results[event.results.length - 1][0].transcript;
+                const textarea = document.getElementById("transcription");
+                textarea.value += transcript + "\n"; // أضف النص المحول
+            };
+
+            // عند إنهاء التعرف
+            recognition.onend = () => {
+                isRecording = false;
+                document.getElementById("status").textContent = "تم إنهاء التسجيل.";
+                document.getElementById("start-btn").disabled = false;
+                document.getElementById("stop-btn").disabled = true;
+                document.getElementById("send-btn").disabled = false;
+            };
+
+            // عند حدوث خطأ
+            recognition.onerror = (event) => {
+                console.error("خطأ أثناء التعرف على الصوت:", event.error);
+                document.getElementById("status").textContent = "حدث خطأ أثناء التعرف.";
+            };
         }
 
-        function resetTimer() {
-            {% comment %} clearInterval(timerInterval);
-            timer = 10;
-            document.getElementById('timer').textContent = '10';
-            startTimer(); {% endcomment %}
+        function startRecording() {
+            if (recognition && !isRecording) {
+                recognition.start();
+            }
         }
 
+        function stopRecording() {
+            if (recognition && isRecording) {
+                recognition.stop();
+            }
+        }
+
+       
+    </script>
+    {% endif %}
+    <script>
+       
         function selectOption(option) {
             document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
             option.classList.add('selected');
@@ -380,10 +444,7 @@
         function openNav() {
             const sideMenu = document.getElementById("sideMenu");
             sideMenu.style.display = sideMenu.style.display === "block" ? "none" : "block";
-        }
-
-        // Start the timer when the page loads
-        window.onload = startTimer;
+        }   
     </script>
 </body>
 </html>

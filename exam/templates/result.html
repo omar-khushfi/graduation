@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Selector - New Design</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+   <body>
+    {% for answer,truetranslate in answers_result.items %}
+        {% if answer.is_true == True %}
+            {{answer.word.content}}:
+              {{answer.answer}}
+              {{answer.is_true}}
+             <br>
+        {% else %}
+          {{answer.word.content}}:
+              {{truetranslate.translation}}
+
+             <br>
+             your result:{{answer.answer}}
+        {% endif %}
+        {{answer.is_true}}
+        <hr>
+      
+    {% endfor %}
+
+   </body>
+</html>
+
+

@@ -51,7 +51,7 @@
                     <button id="searchButton">Search</button>
                 </div>
                <div class="container-button-delete-all"> <button id="deleteAll">Delete Selected Words</button></div>
-               <a href="{% url 'add_word' folder.pk %}" class="add_word">Add word</a>
+               <a href="{% url 'folders_words:add_word' folder.pk %}" class="add_word">Add word</a>
                 <div class="select-all-container">
                     <label for="selectAllSmall" class="select-all-label">Select
                         All</label>
@@ -78,7 +78,7 @@
                             </td>
                         {% endfor %}
                         <td data-label="Actions" class="action-buttons">
-                            <button class="edit" onclick="location.href='{% url 'edit_word' pk=folder.pk id=translat.0.word.pk %}'">Edit</button>
+                            <button class="edit" onclick="location.href='{% url 'folders_words:edit_word' pk=folder.pk id=translat.0.word.pk %}'">Edit</button>
                             <button class="delete">Delete</button>
                         </td>
                     </tr>
@@ -129,7 +129,7 @@
                 alert("No words selected for deletion.");
                 return;
             }
-            fetch('{% url "delete_selected_words" %}', {
+            fetch('{% url "folders_words:delete_selected_words" %}', {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': '{{ csrf_token }}', 
