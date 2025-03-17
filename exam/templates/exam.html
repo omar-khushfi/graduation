@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -313,7 +313,7 @@
     <div class="container">
        
           
-            {% if type == "choose" %}
+            {% if type != "voice" %}
             <form method="post">
             {% csrf_token %}
             <input type="hidden" value="{{lang}}" name="lang">
@@ -322,9 +322,14 @@
         <h1>Vocabulary Exam</h1>
         <div class="timer" id="timer">10 s</div>
         <div class="question">
-            <span id="word">{{current_word.content}}</span>
+            {% if type == 'choose' %}
             
+            <span id="word">{{current_word.content}}</span>
+            {% else %}
+
             <i class="fas fa-volume-up pronounce-icon" onclick="playAudio('{{ native_translate.voice.url }}')"></i>
+            {% endif %}
+            
         </div>
         <div class="options">
             {% for  key, translate in words_with_translate.items %}
@@ -351,13 +356,13 @@
         <form method="post">
             {% csrf_token %}
             <h1> {{ words_with_translate.true.translation }}</h1>
-            <input type="hidden" name="true-translation" value="{{translate.translation}}">
+            <input type="hidden" name="true-translation" value="{{words_with_translate.true.translation}}">
             <input type="hidden" value="{{lang}}" name="lang">
             <input type="hidden" value="{{current_word.id}}" name="current_word">
             <input type="hidden" value="{{exam.id}}" name="exam">
             <input type="hidden" value="{{type}}" name="type">
     <p id="status"></p>
-    <textarea id="transcription" name="text_to_voice" readonly placeholder="النص المنطوق سيظهر هنا..."></textarea>
+    <textarea id="transcription" name="text_to_voice" readonly placeholder="النص المنطوق سيظهر هنا..." dir="rtl"></textarea>
        
         <button class="submit-btn" type="submit">Submit Answer</button>
         </form>
@@ -375,7 +380,7 @@
             alert("ميزة تحويل الصوت إلى نص غير مدعومة في هذا المتصفح. استخدم متصفحًا مثل Google Chrome.");
         } else {
             recognition = new SpeechRecognition();
-            recognition.lang = "en-US"; // اللغة العربية
+            recognition.lang = "{{exam.language.type}}"; // اللغة العربية
             recognition.continuous = true;
 
             // عند بدء التعرف على الكلام

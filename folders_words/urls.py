@@ -13,4 +13,6 @@ urlpatterns = [
     path('folder/<int:pk>/edit_word/<int:id>',views.edit_word.as_view(),name="edit_word"),
     path('delete_word/<int:pk>/<int:word_id>/', views.delete_word, name='delete_word'),
      path('delete_selected_words/', views.delete_selected_words, name='delete_selected_words'),
+         path('generate_pdf/<int:folder_id>/', views.generate_pdf, name='generate_pdf'),
+
 ]

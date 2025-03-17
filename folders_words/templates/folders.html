@@ -15,10 +15,7 @@
     <div class="topnav">
         <div class="left-menu">
             <a href="#home">Download vocabulary</a>
-            <form method="get" action="{% url 'exam:exam' %}">
-                <input type="hidden" name="lang" value="1">
-                <button type="submit">Start Exam</button>
-            </form>
+            <a href="{% url 'exam:create_exam' %}">exam</a>
         </div>
         <div class="search-container">
             <input type="text" placeholder="Search for ...">

@@ -12,7 +12,8 @@
     <body>
         <div class="topnav">
             <div class="left-menu">
-                <a href="#home">Download vocabulary</a>
+                
+                <a href="{% url 'folders_words:generate_pdf'   folder.id %}">Download vocabulary</a>
                 
             </div>
             <div class="search-container-all">
@@ -30,6 +31,7 @@
             </div>
 
             <div class="profile">
+              
                 <a href="#about">My Profile</a>
             </div>
             <button class="open-btn" onclick="openNav()">&#9776;</button>

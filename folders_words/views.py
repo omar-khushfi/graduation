@@ -1,17 +1,8 @@
-from datetime import timedelta
 import json
 from django.http import JsonResponse
-from django.urls import reverse
-from django.utils import timezone
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
-from django.contrib.auth import login
-from django.contrib.auth.hashers import make_password
-from accounts.models import User
-from django.contrib.auth.hashers import check_password
-from django.core.mail import send_mail
-
 from pro import settings
 from .models import *
 import requests
@@ -19,8 +10,15 @@ from django.core.paginator import Paginator,EmptyPage,PageNotAnInteger
 from gtts import gTTS
 import os
 import re
-
-from django.views.decorators.http import require_POST
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from .models import Folder, Word, Translate
+import arabic_reshaper
+from bidi.algorithm import get_display
 
 def translate_text_mymemory(source_text, source_lang, target_lang):
     url = f"https://api.mymemory.translated.net/get?q={source_text}&langpair={source_lang}|{target_lang}"
@@ -123,9 +121,8 @@ class folder(View):
                     if Translate.objects.filter(language=la,word=wo,user=user).exists():
                         qyword=Translate.objects.get(language=la,word=wo,user=user)
                     else:
-                        
-                        nativ_trans=Translate.objects.get(user=user,word=wo,language=main_lang)
 
+                        nativ_trans=Translate.objects.get(user=user,word=wo,language=main_lang)
                         translated = translate_text_mymemory(nativ_trans.word.content, nativ_trans.language.type, la.type)
                         voice_path = generate_pronunciation(translated, la, user.id)       
                         
@@ -254,3 +251,63 @@ def delete_selected_words(request):
         return JsonResponse({'success': True})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
+
+
+
+def generate_pdf(request, folder_id):
+    # احصل على المجلد الذي يحتوي على الكلمات
+    folder = get_object_or_404(Folder, id=folder_id)
+    
+    # إعداد الاستجابة كـ PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{folder.name}_translations.pdf"'
+    
+    # إعداد canvas لإنشاء PDF
+    p = canvas.Canvas(response, pagesize=letter)
+    
+    # تحديد مسار الخط من مجلد static
+    arabic_font_path = os.path.join(settings.BASE_DIR, 'folders_words', 'static', 'font', 'arial.ttf')
+    
+    # تسجيل الخط في ReportLab
+    try:
+        pdfmetrics.registerFont(TTFont('ArabicFont', arabic_font_path))
+        p.setFont('ArabicFont', 12)  # تعيين الخط العربي
+    except Exception as e:
+        # في حالة فشل تحميل الخط، استخدم خطًا افتراضيًا
+        p.setFont('Helvetica', 12)
+        print(f"Failed to load font: {e}")
+    
+    # إعادة تشكيل النص العربي وضبط اتجاهه
+    def format_arabic(text):
+        reshaped_text = arabic_reshaper.reshape(text)  # إعادة تشكيل النص العربي
+        bidi_text = get_display(reshaped_text)  # ضبط الاتجاه من اليمين إلى اليسار
+        return bidi_text
+    
+    # إضافة عنوان للمستند
+    title = format_arabic(f"ترجمات المجلد: {folder.name}")
+    p.drawString(100, 750, title)
+    y_position = 730  # الموقع الرأسي لكتابة الكلمات والترجمات
+    
+    # جمع الكلمات والترجمات
+    words = Word.objects.filter(folder=folder)
+    for word in words:
+        word_text = format_arabic(f"الكلمة: {word.content}")
+        p.drawString(100, y_position, word_text)
+        y_position -= 20
+        
+        # جمع الترجمات للكلمة
+        translations = Translate.objects.filter(word=word)
+        for translation in translations:
+            translation_text = format_arabic(f" - {translation.language.type}: {translation.translation}")
+            p.drawString(120, y_position, translation_text)
+            y_position -= 20
+        
+        y_position -= 20  # المسافة بين الكلمتين
+    
+    # إنهاء إنشاء PDF
+    p.showPage()
+    p.save()
+    
+    # يقوم المتصفح بتحميل الملف مباشرة
+    return response
