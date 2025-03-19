@@ -1,54 +1,11 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vocabulary Learning Website</title>
-   <link rel="stylesheet" href="{% static 'folders.css' %}">
-   
-</head>
+{% block title %}folders{% endblock title %}
+{% block linksytle %}
+<link rel="stylesheet" href="{% static 'folders.css' %}">
 
-<body>
-
-
-    <div class="topnav">
-        <div class="left-menu">
-            <a href="#home">Download vocabulary</a>
-            <a href="{% url 'exam:create_exam' %}">exam</a>
-        </div>
-        <div class="search-container">
-            <input type="text" placeholder="Search for ...">
-            <button type="submit">Search</button>
-        </div>
-        <div class="profile">
-            <a href="#about">My Profile</a>
-        </div>
-        <button class="open-btn" onclick="openNav()">&#9776;</button>
-    </div>
-
-    <div class="side-menu" id="sideMenu">
-       
-        <a href="#home">Download vocabulary</a>
-        <a href="#categories">Exam</a>
-        <a href="#about">My Profile</a> <!-- إضافة "My Profile" للقائمة الجانبية -->
-    </div>
-
-    {% if messages %}
-{% for me in messages %}
-    <div class="alert 
-    {% if me.tags == 'error' %}
-        error
-    {% endif %}
-    {% if me.tags == 'success' %}
-        alert-primary
-    {% endif %}
-    ">
-    {{me}}
-    </div>
-{% endfor %}
-{% endif %}
-
+{% endblock linksytle %}
+{% block content %}
     <div class="container">
         <h1>Your Folders</h1>
         <div class="folder-grid">
@@ -74,9 +31,6 @@
             {% endfor %}
         </div>
     </div>
-
-
-
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
                 {% if folders.has_previous %}
@@ -109,13 +63,7 @@
 
     <script>
         
-        function openNav() {
-            if( document.getElementById("sideMenu").style.display == "block")
-             document.getElementById("sideMenu").style.display = "none";
-            else
-             document.getElementById("sideMenu").style.display = "block";
-        }
-
+     
      
         function toggleCard(event) {
             // إذا كان الحدث موجوداً، نمنع انتشاره للعناصر الأب
@@ -151,5 +99,4 @@
         });
         
     </script>
-</body>
-</html>
+    {% endblock content %}

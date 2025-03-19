@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}my profile{% endblock title %}
+{% block linksytle %}
+<link rel="stylesheet" href="{% static 'folder.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% endblock linksytle %}
+{% block content %}
+    <h1>    {{user}}    </h1>
+    <div style="width: 75%; margin: auto;">
+        <canvas id="analyticsChart"></canvas>
+    </div>
+
+    <script>
+        // تحويل البيانات من JSON إلى كائن JavaScript
+        const analyticsData = JSON.parse('{{ analytics_json|escapejs }}');
+
+        // تحضير البيانات للرسم البياني
+        const weeks = analyticsData.map(data => `الأسبوع ${data.week}`);
+        const correctAnswers = analyticsData.map(data => data.correct_answers);
+        const wrongAnswers = analyticsData.map(data => data.wrong_answers);
+
+        // إنشاء الرسم البياني
+        const ctx = document.getElementById('analyticsChart').getContext('2d');
+        const analyticsChart = new Chart(ctx, {
+            type: 'bar',  // نوع الرسم البياني (يمكن تغييره إلى 'line' أو 'pie' حسب الرغبة)
+            data: {
+                labels: weeks,
+                datasets: [
+                    {
+                        label: 'الإجابات الصحيحة',
+                        data: correctAnswers,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'الإجابات الخطأ',
+                        data: wrongAnswers,
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'تحليلات الإجابات لكل أسبوع'
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock %}

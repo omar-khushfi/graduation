@@ -4,6 +4,7 @@ from datetime import timedelta
 from django.urls import reverse
 from django.utils import timezone
 import random
+from django.db.models.functions import ExtractWeek
 import string
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
@@ -12,6 +13,9 @@ from django.contrib.auth import login,logout
 from django.contrib.auth.hashers import make_password,check_password
 from django.core.mail import send_mail
 from .models import *
+from exam.models import *
+import json
+from django.db.models import Count, Sum, Case, When, IntegerField
 
 def generate_random_code(length=6):
     characters = string.ascii_letters + string.digits  
@@ -258,10 +262,42 @@ class new_password(View):
             messages.error(request,"your password not equal")
             return render(request,"new_password.html")
         
+ 
+ 
+ 
+def get_user_answer_analytics(user):
+    # حساب التاريخ قبل شهر من الآن
+    one_month_ago = timezone.now() - timedelta(days=30)
+    
+    # استخراج الإجابات للمستخدم خلال الشهر الماضي
+    answers = Answer.objects.filter(
+        user=user,
+        created_at__gte=one_month_ago
+    )
+    
+    # تجميع البيانات لكل أسبوع
+    analytics = answers.annotate(
+        week=ExtractWeek('created_at')  # استخراج رقم الأسبوع من التاريخ
+    ).values('week').annotate(
+        total_answers=Count('id'),
+        correct_answers=Sum(Case(When(is_true=True, then=1), output_field=IntegerField())),
+        wrong_answers=Sum(Case(When(is_true=False, then=1), output_field=IntegerField()))
+    ).order_by('week')
+    
+    return analytics       
         
         
-        
-        
+def profile(request):
+    user=request.user
+    analytics = get_user_answer_analytics(user)
+    
+    # تحويل البيانات إلى JSON
+    analytics_json = json.dumps(list(analytics))
+    context={
+        'analytics_json': analytics_json,
+        'user':user
+             }    
+    return render(request, 'profile.html', context)
         
         
 

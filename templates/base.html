@@ -1,0 +1,55 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'base.css' %}">
+    <title>{% block title %}{% endblock title %}</title>
+    {% block linksytle %}{% endblock linksytle %}
+</head>
+<body>
+    <div class="topnav">
+       
+       
+
+        <div class="dark-wight">
+            <input type="checkbox" class="checkbox" id="checkbox">
+            <label for="checkbox" class="checkbox-label">
+                <i class="fas fa-moon"></i>
+                <i class="fas fa-sun"></i>
+                <span class="ball"></span>
+            </label>
+        </div>
+
+        <div class="profile">
+          
+            <a href="{% url 'profile' %}">My Profile</a>
+        </div>
+        <button class="open-btn" onclick="openNav()">&#9776;</button>
+    </div>
+
+    <div class="side-menu" id="sideMenu">
+        <a href="#home">Download vocabulary</a>
+        <a href="#categories">Exam</a>
+        <a href="#about">My Profile</a>
+    </div>
+
+    {% block content %}
+    
+    {% endblock content %}
+    <script>
+        function openNav() {
+            document.getElementById("sideMenu").style.display = "block";
+        }
+        function openNav() {
+            if( document.getElementById("sideMenu").style.display == "block")
+             document.getElementById("sideMenu").style.display = "none";
+            else
+             document.getElementById("sideMenu").style.display = "block";
+        }   
+    </script>
+</body>
+</html>

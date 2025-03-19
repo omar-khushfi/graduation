@@ -28,3 +28,4 @@ class Answer(models.Model):
    exam=models.ForeignKey(Exam,on_delete=models.CASCADE)
    answer=models.CharField(max_length=100)
    is_true=models.BooleanField(default=False)
+   created_at=models.DateTimeField(auto_now=True)

@@ -7,8 +7,12 @@ from rapidfuzz import fuzz
 from .models import *
 from accounts.models import *
 from folders_words.models import *
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-class CreateExamView(View):
+class CreateExamView(LoginRequiredMixin,View):
+    login_url = 'account/login/'  
+
     def get(self, request):
         languages = Language.objects.filter(user=request.user)
         return render(request, "create_exam.html", {"languages": languages})
@@ -35,7 +39,9 @@ class CreateExamView(View):
         return exam
 
 
-class ExamView(View):
+class ExamView(LoginRequiredMixin,View):
+    login_url = 'account/login/'  
+
     def get(self, request, lan):
         user = request.user
         language = Language.objects.get(id=lan)

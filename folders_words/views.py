@@ -19,7 +19,10 @@ from reportlab.pdfbase.ttfonts import TTFont
 from .models import Folder, Word, Translate
 import arabic_reshaper
 from bidi.algorithm import get_display
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def translate_text_mymemory(source_text, source_lang, target_lang):
     url = f"https://api.mymemory.translated.net/get?q={source_text}&langpair={source_lang}|{target_lang}"
     response = requests.get(url)
@@ -28,7 +31,7 @@ def translate_text_mymemory(source_text, source_lang, target_lang):
         return response.json()['responseData']['translatedText']
     else:
         return "Error: Could not translate."
-
+@login_required
 def generate_pronunciation(word, language, user_id):
     sanitized_word = re.sub(r'[\\/*?:"<>|]', '', word)
     language_code = language.type
@@ -55,7 +58,9 @@ def generate_pronunciation(word, language, user_id):
 
 ##################################################
 
-class folders(View):
+class folders(LoginRequiredMixin,View):
+    login_url = 'account/login/'  
+    
     def get(self,request):
         user=request.user
         folders=Folder.objects.filter(user=user.id)
@@ -102,7 +107,9 @@ class folders(View):
         return render(request,'folders.html',context)
     
     
-class folder(View):
+class folder(LoginRequiredMixin,View):
+    login_url = 'account/login/'  
+
     def post(self,request,pk):
        pass
     def get(self,request,pk):
@@ -144,7 +151,9 @@ class folder(View):
  
 
 
-class add_word(View):
+class add_word(LoginRequiredMixin,View):
+    login_url = 'account/login/'  
+
     def get(self,request,pk):
         folder=get_object_or_404(Folder,pk=pk)
         return render(request,'enter_word.html')
@@ -208,7 +217,9 @@ class add_word(View):
 # الفلبينية (tl)
 
 
-class edit_word(View):
+class edit_word(LoginRequiredMixin,View):
+    login_url = 'account/login/'  
+
     def get(self,request,pk,id):
         user=request.user
         word=get_object_or_404(Word,id=id)
@@ -237,12 +248,13 @@ class edit_word(View):
                     pass
         return redirect(f'/folder/{pk}')        
 
-
+@login_required
 def delete_word(request, pk, word_id):
     word = get_object_or_404(Word, pk=word_id)
     word.delete()
     return JsonResponse({'success': True})
 
+@login_required
 def delete_selected_words(request):
     try:
         data = json.loads(request.body)  
@@ -254,7 +266,7 @@ def delete_selected_words(request):
 
 
 
-
+@login_required
 def generate_pdf(request, folder_id):
     # احصل على المجلد الذي يحتوي على الكلمات
     folder = get_object_or_404(Folder, id=folder_id)
