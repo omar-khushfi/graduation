@@ -13,7 +13,8 @@ urlpatterns = [
     path('new_password/',views.new_password.as_view(),name="new_password"),
     
     
-    path('profile/',views.profile,name="profile")
+    path('profile/',views.profile,name="profile"),
+    path('update_profile/', views.update_profile, name='update_profile'),
    
     
 ]

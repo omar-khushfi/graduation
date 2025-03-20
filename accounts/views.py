@@ -16,6 +16,7 @@ from .models import *
 from exam.models import *
 import json
 from django.db.models import Count, Sum, Case, When, IntegerField
+from .forms import *
 
 def generate_random_code(length=6):
     characters = string.ascii_letters + string.digits  
@@ -308,3 +309,18 @@ def profile(request):
 
 
 
+
+
+
+def update_profile(request):
+    user = request.user
+    
+    if request.method == 'POST':
+        form = UserUpdateForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')  
+    else:
+        form = UserUpdateForm(instance=user)
+    
+    return render(request, 'update_profile.html', {'form': form})
