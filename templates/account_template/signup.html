@@ -1,33 +1,6 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'style.css' %}">
-    <title>Create New Account</title>
-</head>
-<body>
-    {% if messages %}
-	{% for me in messages %}
-		<div class="
-		{% if me.tags == 'error' %}
-			error
-		{% endif %}
-		{% if me.tags == 'success' %}
-		
-		{% endif %}
-		">
-		{{me}}
-		</div>
-	{% endfor %}
-{% endif %}
-    <div class="video-container">
-        <video autoplay loop muted playsinline class="background">
-            <source src="{% static '1.mp4' %}" type="video/webm">
-            Your browser does not support video playback.
-        </video>
-    </div>
+{% extends "account_template/base_account.html" %}
+>{% block title %}SignUp{% endblock title %}
+{% block content %}
     <div class="content">
         <div class="form-container signup-container">
             <h1 class="form-title">Create New Account</h1>
@@ -64,15 +37,14 @@
                 <div class="input-group">
                     <label for="country">Country</label>
                     <select id="country" name="country" class="text-input" required>
-                        {% for code, name in country%}
+                        {% for code, name in countries%}
                         <option value="{{ code }}">{{ name }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <button type="submit" class="login-submit">Create Account</button>
             </form>
-            <p class="signup-text">Already have an account? <a href="{% url 'login_view' %}" class="signup-link">Login</a></p>
+            <p class="signup-text">Already have an account? <a href="{% url 'accounts:login_view' %}" class="signup-link">Login</a></p>
         </div>
     </div>
-</body>
-</html>
+{% endblock %}

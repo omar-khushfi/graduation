@@ -1,0 +1,33 @@
+{% extends "account_template/base_account.html" %}
+>{% block title %}Update User{% endblock title %}
+{% block content %}
+    <div class="content">
+        <div class="form-container signup-container">
+            <h1 class="form-title">Update User</h1>
+            <form class="signup-form" method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="input-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {% if field.name == 'country' %}
+                        <select id="{{ field.id_for_label }}" name="{{ field.name }}" class="text-input" required>
+                            {% for code, name in field.field.choices %}
+                            <option value="{{ code }}" {% if field.value == code %}selected{% endif %}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    {% else %}
+                        <input type="{{ field.field.widget.input_type }}" 
+                               id="{{ field.id_for_label }}" 
+                               name="{{ field.name }}" 
+                               class="text-input" 
+                               value="{{ field.value|default_if_none:'' }}"
+                               placeholder="Enter your {{ field.label|lower }}"
+                               {% if field.field.required %}required{% endif %}>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <button type="submit" class="login-submit">Update</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

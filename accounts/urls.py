@@ -3,15 +3,14 @@ from django.urls import path,include
 from . import views
 from django.contrib.auth import views as auth_views
 
-
+app_name = 'accounts'
 urlpatterns = [
-    path('login/',views.login_view.as_view(),name="login_view"),
-    path('signup/',views.signup_view.as_view(),name="signup_view"),
-    
-    path('reset_password/',views.password_code.as_view(),name="reset_password"),
-    path('reset_password/resend_code/',views.ResendCodeView.as_view(), name='resend_code'),
-    path('new_password/',views.new_password.as_view(),name="new_password"),
-    
+    path('login/',views.Login_View  .as_view(),name="login_view"),
+    path('signup/',views.Signup_View.as_view(),name="signup_view"),
+    path('forgot-password/', views.ForgotPassword.as_view(), name='forgot-password'),
+    path('password-reset-sent/<str:reset_id>/', views.PasswordResetSent, name='password-reset-sent'),
+    path('reset-password/<str:reset_id>/', views.ResetPassword.as_view(), name='reset-password'),
+   
     
     path('profile/',views.profile,name="profile"),
     path('update_profile/', views.update_profile, name='update_profile'),

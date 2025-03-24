@@ -6,4 +6,4 @@ from accounts.models import User
 
 admin.site.register(User,UserAdmin)
 
-admin.site.register(Code)
+admin.site.register(PasswordReset)
