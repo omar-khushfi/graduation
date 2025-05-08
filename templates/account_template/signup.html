@@ -1,0 +1,50 @@
+{% extends "account_template/base_account.html" %}
+>{% block title %}SignUp{% endblock title %}
+{% block content %}
+    <div class="content">
+        <div class="form-container signup-container">
+            <h1 class="form-title">Create New Account</h1>
+            <form class="signup-form" method="post">
+                {% csrf_token %}
+                <div class="input-group">
+                    <label for="first_name">First Name</label>
+                    <input type="text" id="first_name" name="first_name" class="text-input" placeholder="Enter your first name" required>
+                </div>
+                <div class="input-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" class="text-input" placeholder="Enter your last name" required>
+                </div>
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" class="text-input" placeholder="Enter your username" required>
+                </div>
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" class="text-input" placeholder="Enter your email" required>
+                </div>
+                <div class="input-group">
+                    <label for="password1">Password</label>
+                    <input type="password" id="password1" name="password1" class="text-input" placeholder="Enter your password" required>
+                </div>
+                <div class="input-group">
+                    <label for="password2">Confirm Password</label>
+                    <input type="password" id="password2" name="password2" class="text-input" placeholder="Re-enter your password" required>
+                </div>
+                <div class="input-group">
+                    <label for="age">Age</label>
+                    <input type="number" id="age" name="age" class="text-input" placeholder="Enter your age" required>
+                </div>
+                <div class="input-group">
+                    <label for="country">Country</label>
+                    <select id="country" name="country" class="text-input" required>
+                        {% for code, name in countries%}
+                        <option value="{{ code }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="login-submit">Create Account</button>
+            </form>
+            <p class="signup-text">Already have an account? <a href="{% url 'accounts:login_view' %}" class="signup-link">Login</a></p>
+        </div>
+    </div>
+{% endblock %}

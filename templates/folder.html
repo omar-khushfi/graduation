@@ -1,0 +1,571 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{folder.name}}{% endblock title %}
+{% block linksytle %}
+<link rel="stylesheet" href="{% static 'folder.css' %}">
+<style>
+    /* Custom styles for action controls and select-all */
+    .action-controls {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .select-all-container {
+        display: flex;
+        align-items: center;
+        margin-left: 10px;
+        background-color: var(--card-bg);
+        padding: 8px 15px;
+        border-radius: var(--border-radius);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .select-all-label {
+        cursor: pointer;
+        user-select: none;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+    }
+    
+    .select-all-label::before {
+        content: '\f0c8';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 400;
+        margin-right: 8px;
+        font-size: 18px;
+        color: var(--primary-color);
+    }
+    
+    input[type="checkbox"]:checked + .select-all-label::before {
+        content: '\f14a';
+        font-weight: 900;
+    }
+    
+    .word-cards-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 30px;
+    }
+    
+    .word-card {
+        background-color: var(--card-bg);
+        border-radius: var(--border-radius);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .word-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .word-card-header {
+        padding: 15px;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .word-card-checkbox {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        z-index: 10;
+    }
+    
+    .word-card-checkbox input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+    
+    .word-card-content {
+        padding: 20px;
+        flex-grow: 1;
+    }
+    
+    .word-translation {
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .word-translation:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+    
+    .language-label {
+        font-size: 14px;
+        color: var(--text-light);
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+    
+    .translation-text {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-color);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .word-card-actions {
+        display: flex;
+        padding: 15px;
+        background-color: rgba(0, 0, 0, 0.02);
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        gap: 10px;
+    }
+    
+    .word-card-actions button {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .filter-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .filter-tag {
+        background-color: rgba(52, 152, 219, 0.1);
+        color: var(--primary-color);
+        padding: 8px 15px;
+        border-radius: 50px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .filter-tag:hover, .filter-tag.active {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .filter-tag i {
+        margin-right: 5px;
+    }
+    
+    .selection-toolbar {
+        background-color: var(--card-bg);
+        border-radius: var(--border-radius);
+        padding: 15px;
+        margin-top: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 15px;
+        transition: all 0.3s ease;
+        transform: translateY(20px);
+        opacity: 0;
+        pointer-events: none;
+    }
+    
+    .selection-toolbar.active {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+    
+    .selection-count {
+        font-weight: 500;
+        color: var(--text-color);
+    }
+    
+    .selection-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background-color: var(--card-bg);
+        border-radius: var(--border-radius);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        margin-top: 30px;
+    }
+    
+    .empty-state-icon {
+        font-size: 60px;
+        color: var(--primary-color);
+        opacity: 0.7;
+        margin-bottom: 20px;
+    }
+    
+    .empty-state-text {
+        font-size: 18px;
+        color: var(--text-light);
+        max-width: 400px;
+        margin: 0 auto 20px;
+    }
+    
+    .empty-state-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--secondary-color), var(--secondary-dark));
+        color: white;
+        padding: 12px 25px;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .empty-state-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    }
+    
+    @media screen and (max-width: 768px) {
+        .word-cards-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .selection-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .selection-actions {
+            flex-direction: column;
+            gap: 10px;
+        }
+    }
+</style>
+{% endblock linksytle %}
+{% block content %}
+<div class="container">
+    <div class="folder-header">
+        <h1>{{folder.name}}</h1>
+        <a href="{% url 'folders_words:generate_pdf' folder.id %}" class="download-link">
+            <i class="fas fa-file-pdf"></i> Download Vocabulary
+        </a>
+    </div>
+    
+    <div class="controls">
+        <div class="search-container-word">
+            <input type="text" id="searchBox" placeholder="Search for a word...">
+            <button id="searchButton">Search</button>
+        </div>
+        
+        <div class="action-controls">
+            <a href="{% url 'folders_words:add_word' folder.pk %}" class="add_word">
+                <i class="fas fa-plus"></i> Add Word
+            </a>
+            
+            <div class="select-all-container">
+                <input type="checkbox" id="selectAllCheckbox" hidden>
+                <label for="selectAllCheckbox" class="select-all-label">Select All</label>
+            </div>
+        </div>
+    </div>
+    
+    {% comment %} <div class="filter-tags">
+        <div class="filter-tag active" data-filter="all">
+            <i class="fas fa-layer-group"></i> All Words
+        </div>
+        <div class="filter-tag" data-filter="recent">
+            <i class="fas fa-clock"></i> Recently Added
+        </div>
+        <div class="filter-tag" data-filter="alphabetical">
+            <i class="fas fa-sort-alpha-down"></i> Alphabetical
+        </div>
+    </div> {% endcomment %}
+    
+    <div class="selection-toolbar" id="selectionToolbar">
+        <div class="selection-count">
+            <span id="selectedCount">0</span> words selected
+        </div>
+        <div class="word-card-actions">          
+            <button id="deleteSelectedBtn" class="delete">
+              Delete Selected
+            </button>
+        </div>
+    </div>
+    
+    {% if translates %}
+    <div class="word-cards-container">
+        {% for translat in translates %}
+        <div class="word-card" data-word-id="{{ translat.0.word.pk }}">
+            <div class="word-card-checkbox">
+                <input type="checkbox" class="word-checkbox">
+            </div>
+            
+            <div class="word-card-header">
+                <h3>Word #{{ forloop.counter }}</h3>
+            </div>
+            
+            <div class="word-card-content">
+                {% for word in translat %}
+                <div class="word-translation">
+                    <div class="language-label">{{ word.language.type }}</div>
+                    <div class="translation-text">
+                        {{ word.translation }}
+                        <i class="fas fa-volume-up pronounce-icon" onclick="playAudio('{{ word.voice.url }}')"></i>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="word-card-actions">
+                <button class="edit" onclick="location.href='{% url 'folders_words:edit_word' pk=folder.pk id=translat.0.word.pk %}'">
+                 Edit
+                </button>
+                <button class="delete" data-word-id="{{ translat.0.word.pk }}">
+                    Delete
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">
+            <i class="fas fa-book-open"></i>
+        </div>
+        <p class="empty-state-text">No words in this folder yet. Start building your vocabulary by adding some words.</p>
+        <a href="{% url 'folders_words:add_word' folder.pk %}" class="empty-state-button">
+            <i class="fas fa-plus"></i> Add Your First Word
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Global function for playing audio (must be accessible from onclick attribute)
+        window.playAudio = function(audioUrl) {
+            const audio = new Audio(audioUrl);
+            audio.play();
+        }
+        
+        // Search functionality
+        const searchBox = document.getElementById('searchBox');
+        const searchButton = document.getElementById('searchButton');
+        
+        function performSearch() {
+            const searchTerm = searchBox.value.toLowerCase();
+            const wordCards = document.querySelectorAll('.word-card');
+            
+            wordCards.forEach(card => {
+                const translations = card.querySelectorAll('.translation-text');
+                let found = false;
+                
+                translations.forEach(translation => {
+                    if (translation.textContent.toLowerCase().includes(searchTerm)) {
+                        found = true;
+                    }
+                });
+                
+                if (found || searchTerm === '') {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        searchButton.addEventListener('click', performSearch);
+        searchBox.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+        
+        // Filter tags functionality
+        const filterTags = document.querySelectorAll('.filter-tag');
+        
+        filterTags.forEach(tag => {
+            tag.addEventListener('click', function() {
+                // Remove active class from all tags
+                filterTags.forEach(t => t.classList.remove('active'));
+                
+                // Add active class to clicked tag
+                this.classList.add('active');
+                
+                const filter = this.getAttribute('data-filter');
+                const wordCards = document.querySelectorAll('.word-card');
+                
+                if (filter === 'all') {
+                    wordCards.forEach(card => {
+                        card.style.display = 'flex';
+                    });
+                } else if (filter === 'recent') {
+                    // Sort by most recent (assuming the last items in the list are most recent)
+                    const container = document.querySelector('.word-cards-container');
+                    const cards = Array.from(wordCards);
+                    cards.reverse().forEach(card => container.appendChild(card));
+                } else if (filter === 'alphabetical') {
+                    // Sort alphabetically by the first translation
+                    const container = document.querySelector('.word-cards-container');
+                    const cards = Array.from(wordCards);
+                    
+                    cards.sort((a, b) => {
+                        const textA = a.querySelector('.translation-text').textContent.trim().toLowerCase();
+                        const textB = b.querySelector('.translation-text').textContent.trim().toLowerCase();
+                        return textA.localeCompare(textB);
+                    });
+                    
+                    cards.forEach(card => container.appendChild(card));
+                }
+            });
+        });
+        
+        // Selection functionality
+        const wordCheckboxes = document.querySelectorAll('.word-checkbox');
+        const selectionToolbar = document.getElementById('selectionToolbar');
+        const selectedCountElement = document.getElementById('selectedCount');
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+        
+        function updateSelectionToolbar() {
+            const checkedBoxes = document.querySelectorAll('.word-checkbox:checked');
+            const count = checkedBoxes.length;
+            
+            selectedCountElement.textContent = count;
+            
+            if (count > 0) {
+                selectionToolbar.classList.add('active');
+            } else {
+                selectionToolbar.classList.remove('active');
+            }
+        }
+        
+        wordCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateSelectionToolbar);
+        });
+        
+     
+        
+        // Select All checkbox functionality (in controls)
+        selectAllCheckbox.addEventListener('change', function() {
+            // Apply the selection state to all checkboxes
+            wordCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            
+          
+           
+            
+            // Update the toolbar to show the count
+            updateSelectionToolbar();
+        });
+        
+        deleteSelectedBtn.addEventListener('click', function() {
+            const selectedWordIds = [];
+            
+            document.querySelectorAll('.word-checkbox:checked').forEach(checkbox => {
+                const card = checkbox.closest('.word-card');
+                selectedWordIds.push(card.dataset.wordId);
+            });
+            
+            if (selectedWordIds.length === 0) {
+                alert("No words selected for deletion.");
+                return;
+            }
+            
+            fetch('{% url "folders_words:delete_selected_words" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ word_ids: selectedWordIds })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.querySelectorAll('.word-checkbox:checked').forEach(checkbox => {
+                        const card = checkbox.closest('.word-card');
+                        card.remove();
+                    });
+                    
+                    updateSelectionToolbar();
+                    
+                    // If all words are deleted, show empty state
+                    if (document.querySelectorAll('.word-card').length === 0) {
+                        location.reload();
+                    }
+                    
+                    alert("Selected words deleted successfully.");
+                } else {
+                    alert("Failed to delete selected words.");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred while deleting words.");
+            });
+        });
+        
+        // Individual delete buttons
+        document.querySelectorAll('.word-card .delete').forEach(button => {
+            button.addEventListener('click', function() {
+                const card = button.closest('.word-card');
+                const folderId = "{{ folder.pk }}";
+                const wordId = button.getAttribute('data-word-id');
+                
+                fetch(`/delete_word/${folderId}/${wordId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        card.remove();
+                        
+                        // If all words are deleted, show empty state
+                        if (document.querySelectorAll('.word-card').length === 0) {
+                            location.reload();
+                        }
+                        
+                        alert('Word deleted successfully');
+                    } else {
+                        alert('Failed to delete word');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("An error occurred while deleting the word.");
+                });
+            });
+        });
+    });
+</script>
+{% endblock scripts %}
+{% endblock content %}

@@ -1,0 +1,27 @@
+{% extends "account_template/base_account.html" %}
+>{% block title %}Login{% endblock title %}
+{% block content %}
+    <div class="content">
+        <div class="form-container">
+            <h1 class="form-title">Login</h1>
+            <form class="login-form" method="post">
+                {% csrf_token %}
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" class="text-input" placeholder="Enter your email" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="text-input" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="login-submit">Login</button>
+            </form>
+            <p class="signup-text">
+                <a href="{% url 'accounts:forgot-password' %}" class="forgot-password-link" >Reset Password</a>
+            </p>
+            {% comment %} {% if account %}
+                <p class="signup-text">Don't have an account? <a href="{% url 'signup_view' %}" class="signup-link">Sign up now</a></p>
+            {% endif %} {% endcomment %}
+        </div>
+    </div>
+{% endblock %}

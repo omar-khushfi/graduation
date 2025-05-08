@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  {% load static %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{% endblock title %}</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    {% if messages %}
+      {% for message in messages %}
+        {% if message.tags == 'error' %}
+          <div class="error">{{ message }}</div>
+        {% else %}
+          <div class="error" style="background-color: #4CAF50;">{{ message }}</div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  <div class="video-container">
+    <video autoplay loop muted playsinline class="background">
+      <source src="{% static '1.mp4' %}" type="video/webm">
+      Your browser does not support video playback.
+    </video>
+  </div>
+
+ {% block content %}
+ {% endblock content %}
+</body>
+</html>

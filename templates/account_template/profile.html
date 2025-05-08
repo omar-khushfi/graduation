@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}My Profile{% endblock title %}
+{% block linksytle %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+{% endblock linksytle %}
+{% block content %}
+<style>
+    :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3f37c9;
+        --accent-color: #4cc9f0;
+        --light-color: #f8f9fa;
+        --dark-color: #212529;
+        --success-color: #4bb543;
+        --danger-color: #ff3333;
+        --border-radius: 12px;
+        --box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f5f7ff;
+        color: var(--dark-color);
+    }
+    
+    .profile-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+    
+    .profile-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        box-shadow: var(--box-shadow);
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid var(--accent-color);
+        margin-bottom: 1.5rem;
+    }
+    
+    .profile-name {
+        font-size: 2rem;
+        font-weight: 600;
+        margin: 0.5rem 0;
+        color: var(--primary-color);
+    }
+    
+    .profile-email {
+        color: #6c757d;
+        margin-bottom: 1.5rem;
+    }
+    
+    .edit-btn {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .edit-btn:hover {
+        background-color: var(--secondary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+    }
+    
+    .profile-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .profile-card {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        box-shadow: var(--box-shadow);
+        position: relative;
+    }
+    
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .card-title i {
+        font-size: 1.5rem;
+        color: var(--accent-color);
+    }
+    
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .info-label {
+        font-weight: 500;
+        color: #6c757d;
+    }
+    
+    .info-value {
+        font-weight: 400;
+    }
+    
+    .languages-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin: 1.5rem 0;
+        min-height: 40px;
+    }
+    
+    .language-tag {
+        background-color: var(--accent-color);
+        color: white;
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .language-tag:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(76, 201, 240, 0.3);
+    }
+    
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        background: rgba(67, 97, 238, 0.1);
+    }
+    
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        box-shadow: var(--box-shadow);
+        margin-bottom: 2rem;
+    }
+    
+    .chart-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: var(--primary-color);
+    }
+    
+    .no-languages {
+        color: #6c757d;
+        font-style: italic;
+    }
+    
+    @media (max-width: 768px) {
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .stats-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .profile-header {
+            padding: 1.5rem;
+        }
+        
+        .profile-name {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="profile-container">
+    <!-- Header Section -->
+    <div class="profile-header">
+        <h1 class="profile-name">{{user.first_name}} {{user.last_name}}</h1>
+        <p class="profile-email">{{user.email}}</p>
+        <a href="{% url 'accounts:update_profile' %}" class="edit-btn">
+            Edit Profile
+        </a>
+    </div>
+    
+    <!-- Profile Grid -->
+    <div class="profile-grid">
+        <!-- Personal Info Card -->
+        <div class="profile-card">
+            <h2 class="card-title">
+                <i class="fas fa-user"></i> Personal Information
+            </h2>
+            <div class="info-item">
+                <span class="info-label">Username:</span>
+                <span class="info-value">{{user.username}}</span>
+            </div>
+          
+            <div class="info-item">
+                <span class="info-label">Country:</span>
+                <span class="info-value">{{user.country}}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Age:</span>
+                <span class="info-value">{{user.age}}</span>
+            </div>
+        </div>
+        
+       <!-- Languages Card -->
+       <div class="profile-card">
+        <h2 class="card-title">
+            <i class="fas fa-language"></i> Languages
+        </h2>
+        <div class="languages-container">
+            {% for language in languages %}
+            <span class="language-tag">
+                <i class="fas fa-check-circle"></i> {{language.type}}
+            </span>
+            {% empty %}
+            <span class="no-languages">No languages added yet</span>
+            {% endfor %}
+        </div>
+        <a href="{% url 'accounts:edit_languages' %}" class="edit-btn">
+            <i class="fas fa-edit"></i> Edit Languages
+        </a>
+    </div>
+    
+        
+        <!-- Stats Card -->
+        <div class="profile-card">
+            <h2 class="card-title">
+                <i class="fas fa-chart-bar"></i> Your Stats
+            </h2>
+            <div class="stats-container">
+                <div class="stat-item">
+                    <div class="stat-value">{{count_words}}</div>
+                    <div class="stat-label">Words</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{count_folders}}</div>
+                    <div class="stat-label">Folders</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Analytics Chart -->
+    <div class="chart-container">
+        <h2 class="chart-title">Learning Analytics</h2>
+        <canvas id="analyticsChart"></canvas>
+    </div>
+</div>
+
+<script>
+    // Convert JSON data to JavaScript object
+    const analyticsData = JSON.parse('{{ analytics_json|escapejs }}');
+
+    // Prepare data for the chart
+    const weeks = analyticsData.map(data => `Week ${data.week}`);
+    const correctAnswers = analyticsData.map(data => data.correct_answers);
+    const wrongAnswers = analyticsData.map(data => data.wrong_answers);
+
+    // Create the chart
+    const ctx = document.getElementById('analyticsChart').getContext('2d');
+    const analyticsChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: weeks,
+            datasets: [
+                {
+                    label: 'Correct Answers',
+                    data: correctAnswers,
+                    backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Wrong Answers',
+                    data: wrongAnswers,
+                    backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 20,
+                        font: {
+                            size: 13
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    padding: 12,
+                    cornerRadius: 8,
+                    usePointStyle: true,
+                }
+            },
+            animation: {
+                duration: 1000,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+</script>
+
+<!-- Font Awesome for icons -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+{% endblock %}

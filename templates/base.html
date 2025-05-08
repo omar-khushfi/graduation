@@ -1,0 +1,85 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'base.css' %}">
+    <title>{% block title %}{% endblock title %}</title>
+    {% block linksytle %}{% endblock linksytle %}
+</head>
+<body class="{% if user.theme %}dark-theme{% else %}light-theme{% endif %}">
+    <div class="topnav">
+        <button class="open-btn" onclick="toggleNav()">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <div class="links">
+            <a href="{% url 'accounts:profile' %}"><i class="fas fa-user-circle"></i> Profile</a>
+            <a href="{% url 'exam:create_exam' %}"><i class="fas fa-file-alt"></i> Create Exam</a>
+            <a href="{% url 'accounts:logout_view' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+        
+        <form action="{% url 'accounts:theme_mode' %}" method="POST" class="theme-form">
+            {% csrf_token %}
+            <div class="dark-wight">
+                <input type="checkbox" class="checkbox" id="checkbox" name="theme" {% if user.theme %}checked{% endif %}>
+                <label for="checkbox" class="checkbox-label">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                    <span class="ball"></span>
+                </label>
+            </div>
+        </form>
+    </div>
+
+    <div class="side-menu" id="sideMenu">
+        <a href="{% url 'folders_words:folders' %}"><i class="fas fa-folder"></i> Folders</a>
+        <a href="{% url 'exam:create_exam' %}"><i class="fas fa-file-alt"></i> Create Exam</a>
+        <a href="{% url 'accounts:profile' %}"><i class="fas fa-user-circle"></i> Profile</a>
+        <a href="{% url 'accounts:logout_view' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <div class="main-content">
+        {% block content %}{% endblock content %}
+    </div>
+    
+    <script>
+        // Theme toggle
+        document.querySelector('.checkbox').addEventListener('change', function() {
+            this.closest('form').submit();
+        });
+        
+        // Side menu toggle with animation
+        function toggleNav() {
+            const sideMenu = document.getElementById("sideMenu");
+            if (sideMenu.style.display === "block") {
+                sideMenu.style.opacity = "0";
+                setTimeout(() => {
+                    sideMenu.style.display = "none";
+                }, 300);
+            } else {
+                sideMenu.style.display = "block";
+                setTimeout(() => {
+                    sideMenu.style.opacity = "1";
+                }, 10);
+            }
+        }
+        
+        // Close side menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const sideMenu = document.getElementById("sideMenu");
+            const openBtn = document.querySelector('.open-btn');
+            
+            if (sideMenu.style.display === "block" && 
+                !sideMenu.contains(event.target) && 
+                !openBtn.contains(event.target)) {
+                toggleNav();
+            }
+        });
+    </script>
+    {% block scripts %}{% endblock scripts %}
+</body>
+</html>

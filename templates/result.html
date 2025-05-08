@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}result{% endblock title %}
+{% block linksytle %}
+<link rel="stylesheet" href="{% static 'result.css' %}">
+
+{% endblock linksytle %}
+{% block content %}
+    {% for answer,truetranslate in answers_result.items %}
+        {% if answer.is_true == True %}
+            {{answer.word.content}}:
+              {{answer.answer}}
+              {{answer.is_true}}
+             <br>
+        {% else %}
+          {{answer.word.content}}:
+              {{truetranslate.translation}}
+
+             <br>
+             your result:{{answer.answer}}
+        {% endif %}
+        {{answer.is_true}}
+        <hr>
+      
+    {% endfor %}
+    {% endblock content %}
+
+

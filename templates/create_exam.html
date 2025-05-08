@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Create Exam{% endblock title %}
+
+{% block linksytle %}
+<link rel="stylesheet" href="{% static 'create_exam.css' %}">
+{% endblock linksytle %}
+
+{% block content %}
+<div class="minimal-container">
+    <div class="minimal-card">
+        <h2>Choose Exam Language</h2>
+        <form class="minimal-form">
+            <div class="radio-group">
+                {% for lan in languages %}
+                    {% if not lan.is_native %}
+                    <label class="minimal-radio">
+                        <input type="radio" name="lang">
+                        <span class="radio-label">{{ lan.name }} ({{ lan.code|upper }})</span>
+                    </label>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <button class="minimal-btn">Start Creating →</button>
+        </form>
+    </div>
+</div>
+{% endblock content %}

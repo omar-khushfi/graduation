@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}تعديل الكلمة{% endblock title %}
+{% block linksytle %}
+<link rel="stylesheet" href="{% static 'unified_theme.css' %}">
+<style>
+    .language-label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #007bff;
+        text-align: center;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+</style>
+{% endblock linksytle %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h2 class="section-title">تعديل الكلمة</h2>
+            
+            {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                <div class="message-box {{ message.tags }}">
+                    <div class="message-content">
+                        {% if message.tags == 'success' %}
+                        <i class="fas fa-check-circle message-icon"></i>
+                        {% elif message.tags == 'error' %}
+                        <i class="fas fa-exclamation-circle message-icon"></i>
+                        {% else %}
+                        <i class="fas fa-info-circle message-icon"></i>
+                        {% endif %}
+                        <span>{{ message }}</span>
+                    </div>
+                    <button type="button" class="message-close" onclick="this.parentElement.style.display='none'">&times;</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="card fade-in">
+                <div class="card-header">
+                    <h5>تعديل ترجمات الكلمة</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="fade-in">
+                        {% csrf_token %}
+                        <table class="word-table">
+                            <thead>
+                                <tr>
+                                    {% for la in languages %}
+                                    <th>{{la.type}}</th>
+                                    {% endfor %}
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    {% if translates %}
+                                        {% for translat in translates %}
+                                        <td>
+                                            <div class="form-group">
+                                                <label class="language-label">{{translat.language.type}}</label>
+                                                <input type="text" class="form-control" value="{{translat.translation}}" name="translate_{{translat.id}}">
+                                            </div>
+                                        </td>
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for la in languages %}
+                                        <td>
+                                            <div class="form-group">
+                                                <label class="language-label">{{la.type}}</label>
+                                                <input type="text" class="form-control" value="" name="translate_new_{{la.id}}" placeholder="أدخل الترجمة">
+                                            </div>
+                                        </td>
+                                        {% endfor %}
+                                    {% endif %}
+                                    <td data-label="الإجراءات" class="action-buttons">
+                                        <button type="submit" class="btn btn-primary">حفظ</button>
+                                        <a href="{% url 'folders_words:folder' pk %}" class="btn btn-outline-primary">إلغاء</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // إضافة تأثيرات حركية للعناصر
+    document.addEventListener('DOMContentLoaded', function() {
+        // تأثير نبض للأزرار عند التحويم
+        const buttons = document.querySelectorAll('.btn');
+        buttons.forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.classList.add('pulse');
+            });
+            button.addEventListener('mouseleave', function() {
+                this.classList.remove('pulse');
+            });
+        });
+
+        // تأثير اهتزاز للحقول عند الخطأ
+        const inputs = document.querySelectorAll('.form-control');
+        inputs.forEach(input => {
+            input.addEventListener('invalid', function() {
+                this.classList.add('shake');
+                setTimeout(() => {
+                    this.classList.remove('shake');
+                }, 500);
+            });
+        });
+    });
+</script>
+{% endblock content %}

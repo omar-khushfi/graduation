@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        
+        .container {
+            background-color: white;
+            padding: clamp(1rem, 5vw, 2.5rem);
+            border-radius: clamp(8px, 2vw, 15px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            width: min(90%, 600px);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: clamp(1rem, 4vw, 2rem);
+            font-size: clamp(1.2rem, 4vw, 2rem);
+            line-height: 1.4;
+        }
+        
+        .input-group {
+            margin-bottom: clamp(1rem, 3vw, 1.5rem);
+        }
+        
+        input {
+            width: 100%;
+            padding: clamp(0.8rem, 2vw, 1rem);
+            border: 2px solid #e0e0e0;
+            border-radius: clamp(6px, 1.5vw, 8px);
+            font-size: clamp(1rem, 2vw, 1.1rem);
+            transition: all 0.3s ease;
+            margin-bottom: clamp(0.8rem, 2vw, 1rem);
+            text-align: right;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 10px rgba(52,152,219,0.1);
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: clamp(0.8rem, 2vw, 1rem) clamp(1.5rem, 4vw, 2rem);
+            border-radius: clamp(6px, 1.5vw, 8px);
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: min(100%, 200px);
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .result {
+            margin-top: clamp(1rem, 3vw, 1.5rem);
+            padding: clamp(0.8rem, 2vw, 1rem);
+            border-radius: clamp(6px, 1.5vw, 8px);
+            background-color: #f8f9fa;
+            display: none;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+        }
+
+        /* تحسينات للأجهزة المحمولة */
+        @media (max-width: 480px) {
+            body {
+                padding: 0.5rem;
+            }
+            
+            .container {
+                padding: 1.2rem;
+                width: 95%;
+            }
+            
+            button {
+                width: 100%;
+                margin-top: 0.5rem;
+            }
+        }
+
+        /* تحسينات للشاشات الكبيرة */
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 700px;
+            }
+            
+            input {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* تحسينات لوضع الشاشة العمودي */
+        @media (orientation: portrait) {
+            .container {
+                margin: 1rem auto;
+            }
+        }
+
+        /* دعم الشاشات عالية الدقة */
+        @media (-webkit-min-device-pixel-ratio: 2), 
+               (min-resolution: 192dpi) {
+            .container {
+                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>أدخل الكلمة بلغتك الأم</h1>
+        <div class="input-group">
+            <form method="post">
+                {% csrf_token %}
+            <input type="text"
+                   id="word" 
+                   name="word"
+                   placeholder="اكتب كلمتك هنا..."
+                   autocomplete="off" required>
+                   <button type="submit" >إضافة الكلمة</button>
+                </form>
+        </div>
+        <div id="result" class="result"></div>
+    </div>
+
+   
+</body>
+</html>

@@ -1,0 +1,68 @@
+/* Minimalist Design */
+.minimal-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 20px;
+}
+
+.minimal-card {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 2rem;
+}
+
+.minimal-card h2 {
+    color: #2d3436;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.minimal-radio {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.minimal-radio:hover {
+    border-color: #0984e3;
+    background: #f8f9ff;
+}
+
+.minimal-radio input[type="radio"] {
+    margin-right: 1rem;
+    width: 18px;
+    height: 18px;
+}
+
+.radio-label {
+    font-size: 1.1rem;
+    color: #636e72;
+}
+
+.minimal-btn {
+    width: 100%;
+    padding: 1rem;
+    background: #0984e3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    margin-top: 1.5rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.minimal-btn:hover {
+    background: #0873c4;
+}
