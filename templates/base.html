@@ -36,10 +36,10 @@
     </div>
 
     <div class="side-menu" id="sideMenu">
-        <a href="{% url 'folders_words:folders' %}"><i class="fas fa-folder"></i> Folders</a>
-        <a href="{% url 'exam:create_exam' %}"><i class="fas fa-file-alt"></i> Create Exam</a>
-        <a href="{% url 'accounts:profile' %}"><i class="fas fa-user-circle"></i> Profile</a>
-        <a href="{% url 'accounts:logout_view' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        <a href="{% url 'folders_words:folders' %}" onclick="toggleNav()"><i class="fas fa-folder"></i> Folders</a>
+        <a href="{% url 'exam:create_exam' %}" onclick="toggleNav()"><i class="fas fa-file-alt"></i> Create Exam</a>
+        <a href="{% url 'accounts:profile' %}" onclick="toggleNav()"><i class="fas fa-user-circle"></i> Profile</a>
+        <a href="{% url 'accounts:logout_view' %}" onclick="toggleNav()"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 
     <div class="main-content">
@@ -50,6 +50,13 @@
         // Theme toggle
         document.querySelector('.checkbox').addEventListener('change', function() {
             this.closest('form').submit();
+        });
+        
+        // Make sure side menu is hidden on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const sideMenu = document.getElementById("sideMenu");
+            sideMenu.style.display = "none";
+            sideMenu.style.opacity = "0";
         });
         
         // Side menu toggle with animation

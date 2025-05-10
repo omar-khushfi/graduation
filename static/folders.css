@@ -70,28 +70,12 @@ h1::after {
     overflow: hidden;
 }
 
-.folder::before {
-    content: '\f07b';
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    position: absolute;
-    top: -15px;
-    right: -15px;
-    font-size: 80px;
-    color: rgba(52, 152, 219, 0.1);
-    z-index: 0;
-    transition: all 0.3s ease;
-}
 
 .folder:hover {
     transform: translateY(-8px);
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
 }
 
-.folder:hover::before {
-    transform: scale(1.2) rotate(10deg);
-    color: rgba(52, 152, 219, 0.15);
-}
 
 .folder h3 {
     color: var(--primary-color);

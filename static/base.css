@@ -192,12 +192,11 @@ body {
     background-color: transparent;
     color: white;
     border: none;
-    display: none;
     transition: all 0.3s ease;
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    display: flex;
+    display: none; /* Hide by default, show only on small screens */
     align-items: center;
     justify-content: center;
 }

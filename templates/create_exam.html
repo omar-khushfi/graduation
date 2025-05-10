@@ -10,12 +10,13 @@
 <div class="minimal-container">
     <div class="minimal-card">
         <h2>Choose Exam Language</h2>
-        <form class="minimal-form">
+        <form class="minimal-form" action="{% url 'exam:create_exam' %}" method="POST">
+            {% csrf_token %}
             <div class="radio-group">
                 {% for lan in languages %}
                     {% if not lan.is_native %}
                     <label class="minimal-radio">
-                        <input type="radio" name="lang">
+                        <input type="radio" name="lang" value="{{ lan.id }}" >
                         <span class="radio-label">{{ lan.name }} ({{ lan.code|upper }})</span>
                     </label>
                     {% endif %}
