@@ -5,6 +5,25 @@
     --text-color: #333;
     --border-radius: 8px;
 }
+
+/* Light Theme (default) */
+.light-theme {
+    --background-color: #f0f4f8;
+    --card-bg: #ffffff;
+    --text-color: #333;
+    --text-light: #7f8c8d;
+    --border-color: #e1e8ed;
+}
+
+/* Dark Theme */
+.dark-theme {
+    --background-color: #1a202c;
+    --card-bg: #2d3748;
+    --text-color: #e2e8f0;
+    --text-light: #a0aec0;
+    --border-color: #4a5568;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -15,6 +34,7 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     line-height: 1.6;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 .topnav {
     background-color: #2c3e50;
@@ -161,7 +181,7 @@ body {
 .container {
     max-width: 800px;
     margin: 20px auto;
-    background-color: white;
+    background-color: var(--card-bg);
     padding: 30px;
     border-radius: var(--border-radius);
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -201,8 +221,8 @@ h1 {
 }
 .option {
     padding: 10px;
-    background-color: #f0f4f8;
-    border: 1px solid #ddd;
+    background-color: rgba(240, 244, 248, 0.1);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     cursor: pointer;
     transition: background-color 0.3s ease;

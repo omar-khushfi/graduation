@@ -1,28 +1,42 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}result{% endblock title %}
+
+{% block title %}Quiz Results{% endblock title %}
+
 {% block linksytle %}
 <link rel="stylesheet" href="{% static 'result.css' %}">
-
+<style>
+   
+</style>
 {% endblock linksytle %}
+
 {% block content %}
-    {% for answer,truetranslate in answers_result.items %}
-        {% if answer.is_true == True %}
-            {{answer.word.content}}:
-              {{answer.answer}}
-              {{answer.is_true}}
-             <br>
-        {% else %}
-          {{answer.word.content}}:
-              {{truetranslate.translation}}
-
-             <br>
-             your result:{{answer.answer}}
+<div class="results-container">
+    <h1 class="result-header">Quiz Results</h1>
+    
+    {% for answer, truetranslate in answers_result.items %}
+        <div class="result-item {% if answer.is_true %}correct-answer{% else %}incorrect-answer{% endif %}">
+            <div class="word">{{ answer.word.content }}</div>
+            
+            {% if answer.is_true %}
+                <div class="answer correct-translation">
+                    {{ answer.answer }}
+                    <span class="badge">✓ Correct</span>
+                </div>
+            {% else %}
+                <div class="answer correct-translation">
+                    Correct translation: {{ truetranslate.translation }}
+                </div>
+                <div class="user-answer">
+                    Your answer: {{ answer.answer }}
+                    <span class="badge">✗ Incorrect</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        {% if not forloop.last %}
+            <hr class="separator">
         {% endif %}
-        {{answer.is_true}}
-        <hr>
-      
     {% endfor %}
-    {% endblock content %}
-
-
+</div>
+{% endblock content %}

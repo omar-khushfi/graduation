@@ -14,10 +14,29 @@
     --transition: all 0.3s ease;
 }
 
+/* Light Theme (default) */
+.light-theme {
+    --background-color: #f1f5fa;
+    --card-bg: #ffffff;
+    --text-color: #2c3e50;
+    --text-light: #7f8c8d;
+    --border-color: #e1e8ed;
+}
+
+/* Dark Theme */
+.dark-theme {
+    --background-color: #1a202c;
+    --card-bg: #2d3748;
+    --text-color: #e2e8f0;
+    --text-light: #a0aec0;
+    --border-color: #4a5568;
+}
+
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: #f5f7ff;
-    color: var(--dark-color);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .profile-container {
@@ -30,7 +49,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: white;
+    background: var(--card-bg);
     border-radius: var(--border-radius);
     padding: 2rem;
     box-shadow: var(--box-shadow);
@@ -55,7 +74,7 @@ body {
 }
 
 .profile-email {
-    color: #6c757d;
+    color: var(--text-light);
     margin-bottom: 1.5rem;
 }
 
@@ -86,7 +105,7 @@ body {
 }
 
 .profile-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: var(--border-radius);
     padding: 1.5rem;
     box-shadow: var(--box-shadow);
@@ -112,12 +131,12 @@ body {
     display: flex;
     justify-content: space-between;
     padding: 0.75rem 0;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .info-label {
     font-weight: 500;
-    color: #6c757d;
+    color: var(--text-light);
 }
 
 .info-value {
@@ -173,11 +192,11 @@ body {
 
 .stat-label {
     font-size: 0.9rem;
-    color: #6c757d;
+    color: var(--text-light);
 }
 
 .chart-container {
-    background: white;
+    background: var(--card-bg);
     border-radius: var(--border-radius);
     padding: 1.5rem;
     box-shadow: var(--box-shadow);
@@ -192,7 +211,7 @@ body {
 }
 
 .no-languages {
-    color: #6c757d;
+    color: var(--text-light);
     font-style: italic;
 }
 

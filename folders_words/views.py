@@ -226,13 +226,24 @@ class edit_word(LoginRequiredMixin,View):
         translates=Translate.objects.filter(word=word,user=user)
         languages=Language.objects.filter(user=user)
         
+        # Debug print statements
+        print("Debug: Translates count:", translates.count())
+        print("Debug: Languages count:", languages.count())
+        
+        for translate in translates:
+            print(f"Debug: Translate - Language: {translate.language}, Code: {translate.language.code}, Display: {translate.language.get_code_display()}")
+        
+        for language in languages:
+            print(f"Debug: Language - Code: {language.code}, Display: {language.get_code_display()}")
+        
         context={
             'word':word,
             'translates':translates,
             'languages':languages,
             'pk':pk
         }
-        return render(request,"edit_word.html",context)        
+        return render(request,"edit_word.html",context)
+        
     def post(self,request,pk,id):
         user=request.user
         word=get_object_or_404(Word,id=id)

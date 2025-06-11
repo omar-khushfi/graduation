@@ -3,18 +3,6 @@
 {% block title %}تعديل الكلمة{% endblock title %}
 {% block linksytle %}
 <link rel="stylesheet" href="{% static 'unified_theme.css' %}">
-<style>
-    .language-label {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 5px;
-        color: #007bff;
-        text-align: center;
-    }
-    .form-group {
-        margin-bottom: 15px;
-    }
-</style>
 {% endblock linksytle %}
 
 {% block content %}
@@ -50,43 +38,41 @@
                 <div class="card-body">
                     <form method="post" class="fade-in">
                         {% csrf_token %}
-                        <table class="word-table">
-                            <thead>
-                                <tr>
-                                    {% for la in languages %}
-                                    <th>{{la.type}}</th>
-                                    {% endfor %}
-                                    <th>الإجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    {% if translates %}
-                                        {% for translat in translates %}
-                                        <td>
-                                            <div class="form-group">
-                                                <label class="language-label">{{translat.language.type}}</label>
-                                                <input type="text" class="form-control" value="{{translat.translation}}" name="translate_{{translat.id}}">
-                                            </div>
-                                        </td>
-                                        {% endfor %}
-                                    {% else %}
-                                        {% for la in languages %}
-                                        <td>
-                                            <div class="form-group">
-                                                <label class="language-label">{{la.type}}</label>
-                                                <input type="text" class="form-control" value="" name="translate_new_{{la.id}}" placeholder="أدخل الترجمة">
-                                            </div>
-                                        </td>
-                                        {% endfor %}
-                                    {% endif %}
-                                    <td data-label="الإجراءات" class="action-buttons">
-                                        <button type="submit" class="btn btn-primary">حفظ</button>
-                                        <a href="{% url 'folders_words:folder' pk %}" class="btn btn-outline-primary">إلغاء</a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="translations-container">
+                         
+
+                            {% if translates %}
+                                {% for translat in translates %}
+                                <div class="translation-group">
+                                    <label class="language-label">
+                                        {% if translat.language %}
+                                            {{ translat.language.type }} ({{ translat.language.code }})
+                                        {% else %}
+                                            نوع اللغة غير موجود
+                                        {% endif %}
+                                    </label>
+                                    <input type="text" class="form-control" value="{{translat.translation}}" name="translate_{{translat.id}}">
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                {% for la in languages %}
+                                <div class="translation-group">
+                                    <label class="language-label">
+                                        {% if la.type %}
+                                            {{ la.type }} ({{ la.code }})
+                                        {% else %}
+                                            نوع اللغة غير موجود
+                                        {% endif %}
+                                    </label>
+                                    <input type="text" class="form-control" value="" name="translate_new_{{la.id}}" placeholder="أدخل الترجمة">
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="action-buttons">
+                            <button type="submit" class="btn btn-primary">حفظ</button>
+                            <a href="{% url 'folders_words:folder' pk %}" class="btn btn-outline-primary">إلغاء</a>
+                        </div>
                     </form>
                 </div>
             </div>

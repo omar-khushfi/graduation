@@ -2,8 +2,7 @@
 {% load static %}
 
 {% block linksytle %}
-<link rel="stylesheet" href="{% static 'unified_theme.css' %}">
-<link rel="stylesheet" href="{% static 'forms_buttons.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 {% endblock linksytle %}
 
 {% block content %}
@@ -86,150 +85,356 @@
 </div>
 
 <style>
-    /* أنماط خاصة بصفحة إدارة اللغات */
-    .language-container {
+    /* توجيه الصفحة للعربية */
+    body {
+        direction: rtl;
+        text-align: right;
+        font-family: 'Cairo', 'Tajawal', sans-serif;
+    }
+    
+    /* تنسيق العنوان الرئيسي */
+    .section-title {
+        color: #2c3e50;
+        font-weight: 700;
+        position: relative;
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        right: 50%;
+        transform: translateX(50%);
+        width: 80px;
+        height: 3px;
+        background: linear-gradient(90deg, #3498db, #2980b9);
+    }
+    
+    /* تنسيق البطاقة */
+    .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 30px;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        border-bottom: none;
+        padding: 18px 25px;
+    }
+    
+    .card-header h5 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 1.25rem;
+    }
+    
+    .card-body {
+        padding: 25px;
+        background-color: #f8f9fa;
+    }
+    
+    /* تنسيق حاوية الرسائل */
+    .messages-container {
+        margin-bottom: 20px;
+    }
+    
+    .message-box {
         display: flex;
-        flex-direction: column;
-        gap: var(--spacing-md);
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 18px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        transition: opacity 0.3s, transform 0.3s;
+        animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .message-box.success {
+        background-color: #e8f5e9;
+        border-right: 4px solid #4caf50;
+    }
+    
+    .message-box.error {
+        background-color: #ffebee;
+        border-right: 4px solid #f44336;
+    }
+    
+    .message-box.info {
+        background-color: #e3f2fd;
+        border-right: 4px solid #2196f3;
+    }
+    
+    .message-content {
+        display: flex;
+        align-items: center;
+    }
+    
+    .message-icon {
+        margin-left: 12px;
+        font-size: 18px;
+    }
+    
+    .success .message-icon {
+        color: #4caf50;
+    }
+    
+    .error .message-icon {
+        color: #f44336;
+    }
+    
+    .info .message-icon {
+        color: #2196f3;
+    }
+    
+    .message-close {
+        background: none;
+        border: none;
+        color: #999;
+        font-size: 20px;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    
+    .message-close:hover {
+        color: #555;
+    }
+    
+    /* تنسيق عناصر اللغات */
+    .language-container {
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 10px 5px;
+        margin-bottom: 20px;
     }
     
     .language-item {
-        background: var(--light-color);
-        border-radius: var(--border-radius);
-        padding: var(--spacing-md);
-        box-shadow: var(--box-shadow-sm);
-        transition: var(--transition);
-        animation: fadeIn 0.5s ease;
-        border: 1px solid var(--light-gray);
+        background-color: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        position: relative;
     }
     
     .language-item:hover {
-        transform: translateY(-3px);
-        box-shadow: var(--box-shadow);
-        border-color: var(--primary-color);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
     
     .language-content {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: var(--spacing-md);
     }
     
     .language-main {
         flex: 1;
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--spacing-lg);
-        align-items: center;
-    }
-    
-    .native-check {
-        margin-top: var(--spacing-sm);
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .native-language-note {
-        display: block;
-        font-size: 0.75rem;
-        color: var(--medium-gray);
-        margin-top: var(--spacing-xs);
-        font-style: italic;
     }
     
     .language-actions {
         display: flex;
         align-items: center;
+        margin-right: 15px;
     }
     
-    .btn-delete {
-        border-radius: var(--border-radius);
-        width: 40px;
-        height: 40px;
+    /* الهزة عند الحذف */
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        50% { transform: translateX(10px); }
+        75% { transform: translateX(-10px); }
+    }
+    
+    .shake {
+        animation: shake 0.5s linear;
+    }
+    
+    /* تنسيق العناصر النصية */
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #4a5568;
+    }
+    
+    select {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background-color: white;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23333' viewBox='0 0 16 16'%3E%3Cpath d='M8 13l-7-7 1.41-1.41L8 10.17l5.59-5.58L15 6l-7 7z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: left 15px center;
+        padding-left: 30px;
+    }
+    
+    select:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        outline: none;
+    }
+    
+    /* تنسيق مربع اختيار اللغة الأم */
+    .native-check {
         display: flex;
         align-items: center;
-        justify-content: center;
-        transition: var(--transition);
-        background-color: #fff;
-        color: var(--danger-color);
-        border: 1px solid var(--danger-color);
-        box-shadow: var(--box-shadow-sm);
+        margin-bottom: 0;
+    }
+    
+    .form-check-label {
+        display: flex;
+        align-items: center;
         cursor: pointer;
+        margin-left: 0;
+        margin-bottom: 0;
+        font-weight: 600;
+        color: #4a5568;
     }
     
-    .btn-delete:hover {
-        background-color: var(--danger-color);
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(247, 91, 91, 0.2);
+    input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin-left: 8px;
+        cursor: pointer;
+        accent-color: #3498db;
     }
     
+    .native-language-note {
+        color: #718096;
+        margin-right: 10px;
+        font-size: 0.85rem;
+    }
+    
+    /* تنسيق الأزرار */
     .form-actions {
         display: flex;
         justify-content: space-between;
-        gap: var(--spacing-md);
-        margin-top: var(--spacing-lg);
+        align-items: center;
+        margin-top: 20px;
     }
     
-    .btn-add, .btn-save {
-        padding: 0.75rem 1.5rem;
-        border-radius: var(--border-radius);
-        cursor: pointer;
-        font-weight: 600;
-        transition: var(--transition);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
+    .btn-add,
+    .btn-save,
+    .btn-delete {
+        padding: 8px 16px;
         border: none;
-        color: white;
-        box-shadow: var(--box-shadow-sm);
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        transition: all 0.3s ease;
     }
     
     .btn-add {
-        background-color: var(--success-color);
+        background-color: #e3f2fd;
+        color: #2196f3;
     }
     
     .btn-add:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.25);
-        background-color: #43a047;
+        background-color: #bbdefb;
     }
     
     .btn-save {
-        background-color: var(--primary-color);
+        background-color: #2196f3;
+        color: white;
+        padding: 10px 20px;
     }
     
     .btn-save:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(40, 149, 148, 0.25);
-        background-color: var(--primary-dark);
+        background-color: #1976d2;
     }
     
-    /* تحسين مظهر الفورم في الأجهزة المحمولة */
+    .btn-delete {
+        background-color: #ffebee;
+        color: #f44336;
+        padding: 6px;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+    }
+    
+    .btn-delete:hover {
+        background-color: #ffcdd2;
+    }
+    
+    .btn-add i,
+    .btn-save i {
+        margin-left: 8px;
+    }
+    
+    /* تعديلات للتوافق مع الشاشات الصغيرة */
     @media (max-width: 768px) {
-        .language-content {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        
-        .language-main {
-            width: 100%;
-        }
-        
-        .language-actions {
-            margin-top: var(--spacing-md);
-            align-self: flex-end;
-        }
-        
         .form-actions {
             flex-direction: column;
-            gap: var(--spacing-md);
+            gap: 10px;
         }
         
         .btn-add, .btn-save {
             width: 100%;
         }
+        
+        .language-content {
+            flex-direction: column;
+        }
+        
+        .language-actions {
+            margin-top: 10px;
+            margin-right: 0;
+        }
+    }
+    
+    /* تحسين التمرير */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #bbb;
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #999;
     }
 </style>
 
@@ -293,6 +498,15 @@
                 card.parentNode.insertBefore(newMessagesContainer, card);
             }
             
+            // إضافة تأثير انيميشن للظهور
+            messageBox.style.opacity = '0';
+            messageBox.style.transform = 'translateY(-10px)';
+            
+            setTimeout(() => {
+                messageBox.style.opacity = '1';
+                messageBox.style.transform = 'translateY(0)';
+            }, 10);
+            
             // إزالة الرسالة بعد 5 ثوانٍ
             setTimeout(() => {
                 messageBox.style.opacity = '0';
@@ -314,7 +528,7 @@
             const newForm = lastForm.cloneNode(true);
             
             // تحديث معرفات النموذج وأسمائه
-            const formRegex = RegExp(`form-(\d){1}-`,'g');
+            const formRegex = RegExp(`form-(\\d){1}-`,'g');
             const replacement = `form-${formCount}-`;
             
             newForm.innerHTML = newForm.innerHTML.replace(formRegex, replacement);
@@ -387,6 +601,7 @@
         });
     });
     
+    // دالة إزالة اللغة - معرفة عالميًا لتكون متاحة للـ onclick
     function removeLanguage(button) {
         // العثور على النموذج الأقرب
         const form = button.closest('.language-item');
@@ -413,12 +628,48 @@
                 
                 // إذا كانت اللغة المحذوفة هي اللغة الأم، عرض رسالة
                 if (wasNative) {
-                    // يمكن إضافة رسالة هنا إذا لزم الأمر
+                    // عرض رسالة تنبيه عن حذف اللغة الأم
+                    const messagesContainer = document.querySelector('.messages-container');
+                    if (messagesContainer) {
+                        const showMessage = new Function(`
+                            const messagesContainer = document.querySelector('.messages-container');
+                            const messageBox = document.createElement('div');
+                            messageBox.className = 'message-box info';
+                            
+                            messageBox.innerHTML = \`
+                                <div class="message-content">
+                                    <i class="fas fa-info-circle message-icon"></i>
+                                    <span>تم حذف اللغة الأم. يرجى تحديد لغة أم جديدة.</span>
+                                </div>
+                                <button type="button" class="message-close" onclick="this.parentElement.style.display='none'">&times;</button>
+                            \`;
+                            
+                            messagesContainer.appendChild(messageBox);
+                            
+                            // إضافة تأثير انيميشن للظهور
+                            messageBox.style.opacity = '0';
+                            messageBox.style.transform = 'translateY(-10px)';
+                            
+                            setTimeout(() => {
+                                messageBox.style.opacity = '1';
+                                messageBox.style.transform = 'translateY(0)';
+                            }, 10);
+                            
+                            // إزالة الرسالة بعد 5 ثوانٍ
+                            setTimeout(() => {
+                                messageBox.style.opacity = '0';
+                                messageBox.style.transform = 'translateY(-10px)';
+                                setTimeout(() => messageBox.remove(), 300);
+                            }, 5000);
+                        `);
+                        showMessage();
+                    }
                 }
             }, 300);
         }, 400);
     }
     
+    // تحديث أرقام النماذج بعد الحذف
     function updateFormNumbers() {
         const forms = document.querySelectorAll('.language-item');
         const totalForms = document.querySelector('[name="form-TOTAL_FORMS"]');
