@@ -18,7 +18,7 @@
                         <form method="post" action="{% url 'folders_words:folders' %}">
                             {% csrf_token %}
                         <span class="cancel-icon" onclick="toggleCard(event)">✕</span>
-                        <input type="text" class="folder-name-input" id="folderName" name="new_folder" placeholder="folder name" maxlength="25">
+                        <input type="text" class="folder-name-input" id="folderName" name="new_folder" placeholder="Folder name" maxlength="25">
                         <button class="add-button" >Add New Folder</button>
                         </form>
                     </div>
@@ -66,7 +66,7 @@
      
      
         function toggleCard(event) {
-            // إذا كان الحدث موجوداً، نمنع انتشاره للعناصر الأب
+            // If event exists, prevent propagation to parent elements
             if (event) {
                 event.stopPropagation();
             }
@@ -74,26 +74,28 @@
             const flipCard = document.getElementById('flipCard');
             flipCard.classList.toggle('flipped');
             
-            // إذا تم الالتفاف، نركز على حقل الإدخال
+            // If flipped, focus on the input field
             if (flipCard.classList.contains('flipped')) {
                 setTimeout(() => {
                     document.getElementById('folderName').focus();
                 }, 600);
             } else {
-                // إذا عاد للوضع الأصلي، نمسح المحتوى
+                // If returned to original state, clear the content
                 document.getElementById('folderName').value = '';
             }
         }
 
 
-        // إضافة استجابة للضغط على Enter في حقل الإدخال
+        // Add response for Enter key press in the input field
         document.getElementById('folderName').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                addNewFolder(e);
+                // The form will be submitted by default
+                e.preventDefault();
+                this.closest('form').submit();
             }
         });
 
-        // منع النقر على حقل الإدخال من إغلاق المربع
+        // Prevent clicking on the input field from closing the box
         document.getElementById('folderName').addEventListener('click', function(e) {
             e.stopPropagation();
         });

@@ -17,12 +17,13 @@
         </button>
         
         <div class="links">
+            <a href="{% url 'folders_words:folders' %}"><i class="fas fa-user-circle"></i> Home</a>
             <a href="{% url 'accounts:profile' %}"><i class="fas fa-user-circle"></i> Profile</a>
             <a href="{% url 'exam:create_exam' %}"><i class="fas fa-file-alt"></i> Create Exam</a>
             <a href="{% url 'accounts:logout_view' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
         
-        <form action="{% url 'accounts:theme_mode' %}" method="POST" class="theme-form">
+        <!-- <form action="{% url 'accounts:theme_mode' %}" method="POST" class="theme-form">
             {% csrf_token %}
             <div class="dark-wight">
                 <input type="checkbox" class="checkbox" id="checkbox" name="theme" {% if user.theme %}checked{% endif %}>
@@ -32,7 +33,7 @@
                     <span class="ball"></span>
                 </label>
             </div>
-        </form>
+        </form> -->
     </div>
 
     <div class="side-menu" id="sideMenu">

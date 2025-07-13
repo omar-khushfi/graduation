@@ -16,7 +16,7 @@
             <i class="fas fa-file-pdf"></i> Download Vocabulary
         </a>
     </div>
-    
+<!--     
     <div class="controls">
         <div class="search-container-word">
             <input type="text" id="searchBox" placeholder="Search for a word...">
@@ -33,7 +33,7 @@
                 <label for="selectAllCheckbox" class="select-all-label">Select All</label>
             </div>
         </div>
-    </div>
+    </div> -->
     
     {% comment %} <div class="filter-tags">
         <div class="filter-tag active" data-filter="all">
@@ -73,7 +73,7 @@
             <div class="word-card-content">
                 {% for word in translat %}
                 <div class="word-translation">
-                    <div class="language-label">{{ word.language.type }}</div>
+                    <div class="language-label">{{ word.language.get_code_display }}</div>
                     <div class="translation-text">
                         {{ word.translation }}
                         <i class="fas fa-volume-up pronounce-icon" onclick="playAudio('{{ word.voice.url }}')"></i>

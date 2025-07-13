@@ -1,151 +1,133 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}exam{% endblock title %}
+{% block title %}Exam{% endblock title %}
 {% block linksytle %}
 <link rel="stylesheet" href="{% static 'exam.css' %}">
-
 {% endblock linksytle %}
-{% block content %} 
 
-    <div class="container">
-       
-          
-            {% if type != "voice" %}
-            <form method="post">
-            {% csrf_token %}
-            <input type="hidden" value="{{lang}}" name="lang">
-            <input type="hidden" value="{{current_word.id}}" name="current_word">
-            <input type="hidden" value="{{exam.id}}" name="exam">
+{% block content %} 
+<div class="container">
+
+    {% if type != "voice" %}
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" value="{{lang}}" name="lang">
+        <input type="hidden" value="{{current_word.id}}" name="current_word">
+        <input type="hidden" value="{{exam.id}}" name="exam">
+
         <h1>Vocabulary Exam</h1>
         <div class="timer" id="timer">10 s</div>
         <div class="question">
             {% if type == 'choose' %}
-            
-            <span id="word">{{native_translate.translation}}</span>
+                <span id="word">{{native_translate.translation}}</span>
             {% else %}
-
-            <i class="fas fa-volume-up pronounce-icon" onclick="playAudio('{{ native_translate.voice.url }}')"></i>
+                <i class="fas fa-volume-up pronounce-icon" onclick="playAudio('{{ native_translate.voice.url }}')"></i>
             {% endif %}
-            
         </div>
+
         <div class="options">
-            {% for  key, translate in words_with_translate.items %}
-            {% if key == "true" %}
-            {{translate.translation}}
-            <input type="radio" name="ans" value="true-{{translate.translation}}">
-            {% else %}
-            {{translate.translation}}
-            <input type="radio" name="ans" value="{{translate.translation}}">
-            {% endif %}
-          
+            {% for key, translate in words_with_translate.items %}
+                {{ translate.translation }}
+                {% if key == "true" %}
+                    <input type="radio" name="ans" value="true-{{translate.translation}}">
+                {% else %}
+                    <input type="radio" name="ans" value="{{translate.translation}}">
+                {% endif %}
             {% endfor %}
-           
             <button class="submit-btn" type="submit">Submit Answer</button>
         </div>
     </form>
-        {% else %}
-          <h1>تسجيل الصوت</h1>
-    <p>اضغط على "ابدأ التسجيل" لبدء تسجيل الصوت من المايكروفون.</p>
 
-    <button id="start-btn" onclick="startRecording()">ابدأ التسجيل</button>
-    <button id="stop-btn" onclick="stopRecording()" disabled>إيقاف التسجيل</button>
-    <button id="send-btn" onclick="sendRecording()" disabled>إرسال التسجيل</button>
-        <form method="post">
-            {% csrf_token %}
-            <h1> {{ words_with_translate.true.translation }}</h1>
-            <input type="hidden" name="true-translation" value="{{words_with_translate.true.translation}}">
-            <input type="hidden" value="{{lang}}" name="lang">
-            <input type="hidden" value="{{current_word.id}}" name="current_word">
-            <input type="hidden" value="{{exam.id}}" name="exam">
-            <input type="hidden" value="{{type}}" name="type">
-    <p id="status"></p>
-    <textarea id="transcription" name="text_to_voice" readonly placeholder="النص المنطوق سيظهر هنا..." dir="rtl"></textarea>
-       
+    {% else %}
+    <h1>Voice Recording</h1>
+    <p>Click "Start Recording" to begin capturing audio from your microphone.</p>
+
+    <button id="start-btn" onclick="startRecording()">Start Recording</button>
+    <button id="stop-btn" onclick="stopRecording()" disabled>Stop Recording</button>
+
+    <form method="post">
+        {% csrf_token %}
+        <h1>{{ words_with_translate.true.translation }}</h1>
+        <input type="hidden" name="true-translation" value="{{words_with_translate.true.translation}}">
+        <input type="hidden" value="{{lang}}" name="lang">
+        <input type="hidden" value="{{current_word.id}}" name="current_word">
+        <input type="hidden" value="{{exam.id}}" name="exam">
+        <input type="hidden" value="{{type}}" name="type">
+
+        <p id="status"></p>
+        <textarea id="transcription" name="text_to_voice" readonly placeholder="The spoken text will appear here..." dir="ltr"></textarea>
+        
         <button class="submit-btn" type="submit">Submit Answer</button>
-        </form>
-    </div>
+    </form>
+</div>
 
-  
-    <script>
-        let recognition;
-        let isRecording = false;
+<script>
+    let recognition;
+    let isRecording = false;
 
-        // تحقق من دعم SpeechRecognition
-        window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-        if (!window.SpeechRecognition) {
-            alert("ميزة تحويل الصوت إلى نص غير مدعومة في هذا المتصفح. استخدم متصفحًا مثل Google Chrome.");
-        } else {
-            recognition = new SpeechRecognition();
-            recognition.lang = "{{exam.language.code}}"; // اللغة العربية
-            recognition.continuous = true;
+    if (!window.SpeechRecognition) {
+        alert("Speech-to-text is not supported in this browser. Try using Google Chrome.");
+    } else {
+        recognition = new SpeechRecognition();
+        recognition.lang = "{{exam.language.code}}";
+        recognition.continuous = true;
 
-            // عند بدء التعرف على الكلام
-            recognition.onstart = () => {
-                isRecording = true;
-                document.getElementById("status").textContent = "جاري التسجيل...";
-                document.getElementById("start-btn").disabled = true;
-                document.getElementById("stop-btn").disabled = false;
-                document.getElementById("send-btn").disabled = false;
-            };
+        recognition.onstart = () => {
+            isRecording = true;
+            document.getElementById("status").textContent = "Recording...";
+            document.getElementById("start-btn").disabled = true;
+            document.getElementById("stop-btn").disabled = false;
+        };
 
-            // عند استقبال النص المحول
-            recognition.onresult = (event) => {
-                const transcript = event.results[event.results.length - 1][0].transcript;
-                const textarea = document.getElementById("transcription");
-                textarea.value += transcript + "\n"; // أضف النص المحول
-            };
+        recognition.onresult = (event) => {
+            const transcript = event.results[event.results.length - 1][0].transcript;
+            const textarea = document.getElementById("transcription");
+            textarea.value += transcript + "\n";
+        };
 
-            // عند إنهاء التعرف
-            recognition.onend = () => {
-                isRecording = false;
-                document.getElementById("status").textContent = "تم إنهاء التسجيل.";
-                document.getElementById("start-btn").disabled = false;
-                document.getElementById("stop-btn").disabled = true;
-                document.getElementById("send-btn").disabled = false;
-            };
+        recognition.onend = () => {
+            isRecording = false;
+            document.getElementById("status").textContent = "Recording stopped.";
+            document.getElementById("start-btn").disabled = false;
+            document.getElementById("stop-btn").disabled = true;
+        };
 
-            // عند حدوث خطأ
-            recognition.onerror = (event) => {
-                console.error("خطأ أثناء التعرف على الصوت:", event.error);
-                document.getElementById("status").textContent = "حدث خطأ أثناء التعرف.";
-            };
+        recognition.onerror = (event) => {
+            console.error("Speech recognition error:", event.error);
+            document.getElementById("status").textContent = "An error occurred during speech recognition.";
+        };
+    }
+
+    function startRecording() {
+        if (recognition && !isRecording) {
+            recognition.start();
         }
+    }
 
-        function startRecording() {
-            if (recognition && !isRecording) {
-                recognition.start();
-            }
+    function stopRecording() {
+        if (recognition && isRecording) {
+            recognition.stop();
         }
+    }
+</script>
+{% endif %}
 
-        function stopRecording() {
-            if (recognition && isRecording) {
-                recognition.stop();
-            }
-        }
+<script>
+    function selectOption(option) {
+        document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+    }
 
-       
-    </script>
-    {% endif %}
-    <script>
-       
-        function selectOption(option) {
-            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
-            option.classList.add('selected');
-        }
+    function playAudio(audioUrl) {
+        const audio = new Audio(audioUrl);
+        audio.play();
+    }
 
-     
-
-        function playAudio(audioUrl) {
-       
-            const audio = new Audio(audioUrl);
-            
-            audio.play();
-        }
-
-        function openNav() {
-            const sideMenu = document.getElementById("sideMenu");
-            sideMenu.style.display = sideMenu.style.display === "block" ? "none" : "block";
-        }   
-    </script>
-    {% endblock content %} 
+    function openNav() {
+        const sideMenu = document.getElementById("sideMenu");
+        sideMenu.style.display = sideMenu.style.display === "block" ? "none" : "block";
+    }   
+</script>
+{% endblock content %}

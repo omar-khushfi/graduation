@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar">
+<html dir="ltr" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -88,7 +88,7 @@
             font-size: clamp(0.9rem, 2vw, 1rem);
         }
 
-        /* تحسينات للأجهزة المحمولة */
+        /* Mobile optimizations */
         @media (max-width: 480px) {
             body {
                 padding: 0.5rem;
@@ -105,7 +105,7 @@
             }
         }
 
-        /* تحسينات للشاشات الكبيرة */
+        /* Large screen optimizations */
         @media (min-width: 1200px) {
             .container {
                 max-width: 700px;
@@ -123,7 +123,7 @@
             }
         }
 
-        /* دعم الشاشات عالية الدقة */
+        /* High DPI display support */
         @media (-webkit-min-device-pixel-ratio: 2), 
                (min-resolution: 192dpi) {
             .container {
@@ -134,17 +134,19 @@
 </head>
 <body>
     <div class="container">
-        <h1>أدخل الكلمة بلغتك الأم</h1>
+        <h1>Enter the word you want to translate</h1>
         <div class="input-group">
             <form method="post">
                 {% csrf_token %}
-            <input type="text"
-                   id="word" 
-                   name="word"
-                   placeholder="اكتب كلمتك هنا..."
-                   autocomplete="off" required>
-                   <button type="submit" >إضافة الكلمة</button>
-                </form>
+                <input type="text" 
+                       id="word" 
+                       name="word"
+                       placeholder="Type the word here" 
+                       dir="ltr" 
+                       autocomplete="off" 
+                       required>
+                <button type="submit">Add Word</button>
+            </form>
         </div>
         <div id="result" class="result"></div>
     </div>

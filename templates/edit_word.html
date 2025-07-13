@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}تعديل الكلمة{% endblock title %}
+{% block title %}Edit Word{% endblock title %}
 {% block linksytle %}
 <link rel="stylesheet" href="{% static 'unified_theme.css' %}">
 {% endblock linksytle %}
@@ -9,7 +9,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <h2 class="section-title">تعديل الكلمة</h2>
+            <h2 class="section-title">Edit Word</h2>
             
             {% if messages %}
             <div class="messages-container">
@@ -33,22 +33,20 @@
             
             <div class="card fade-in">
                 <div class="card-header">
-                    <h5>تعديل ترجمات الكلمة</h5>
+                    <h5>Edit Word Translations</h5>
                 </div>
                 <div class="card-body">
                     <form method="post" class="fade-in">
                         {% csrf_token %}
                         <div class="translations-container">
-                         
-
                             {% if translates %}
                                 {% for translat in translates %}
                                 <div class="translation-group">
                                     <label class="language-label">
                                         {% if translat.language %}
-                                            {{ translat.language.type }} ({{ translat.language.code }})
+                                            {{ translat.language.get_code_display }} ({{ translat.language.code }})
                                         {% else %}
-                                            نوع اللغة غير موجود
+                                            Language type not available
                                         {% endif %}
                                     </label>
                                     <input type="text" class="form-control" value="{{translat.translation}}" name="translate_{{translat.id}}">
@@ -58,20 +56,20 @@
                                 {% for la in languages %}
                                 <div class="translation-group">
                                     <label class="language-label">
-                                        {% if la.type %}
-                                            {{ la.type }} ({{ la.code }})
+                                        {% if la.code %}
+                                            {{ la.get_code_display }} ({{ la.code }})
                                         {% else %}
-                                            نوع اللغة غير موجود
+                                            Language type not available
                                         {% endif %}
                                     </label>
-                                    <input type="text" class="form-control" value="" name="translate_new_{{la.id}}" placeholder="أدخل الترجمة">
+                                    <input type="text" class="form-control" value="" name="translate_new_{{la.id}}" placeholder="Enter translation">
                                 </div>
                                 {% endfor %}
                             {% endif %}
                         </div>
                         <div class="action-buttons">
-                            <button type="submit" class="btn btn-primary">حفظ</button>
-                            <a href="{% url 'folders_words:folder' pk %}" class="btn btn-outline-primary">إلغاء</a>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                            <a href="{% url 'folders_words:folder' pk %}" class="btn btn-outline-primary">Cancel</a>
                         </div>
                     </form>
                 </div>
@@ -81,9 +79,9 @@
 </div>
 
 <script>
-    // إضافة تأثيرات حركية للعناصر
+    // Add hover effects to elements
     document.addEventListener('DOMContentLoaded', function() {
-        // تأثير نبض للأزرار عند التحويم
+        // Pulsing effect for buttons on hover
         const buttons = document.querySelectorAll('.btn');
         buttons.forEach(button => {
             button.addEventListener('mouseenter', function() {
@@ -94,7 +92,7 @@
             });
         });
 
-        // تأثير اهتزاز للحقول عند الخطأ
+        // Shake effect for invalid fields
         const inputs = document.querySelectorAll('.form-control');
         inputs.forEach(input => {
             input.addEventListener('invalid', function() {
