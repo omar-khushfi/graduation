@@ -63,7 +63,7 @@ class folders(LoginRequiredMixin,View):
         user=request.user
         folders=Folder.objects.filter(user=user.id)
         
-        paginator=Paginator(folders,1) 
+        paginator=Paginator(folders,8) 
         page_number=request.GET.get("page")
         try:
             folders=paginator.page(page_number)
@@ -92,7 +92,7 @@ class folders(LoginRequiredMixin,View):
         
         
         folders=Folder.objects.filter(user=user.id)
-        paginator=Paginator(folders,1) 
+        paginator=Paginator(folders,8) 
         page_number=request.GET.get("page")
         try:
             folders=paginator.page(page_number)
@@ -288,6 +288,7 @@ class edit_word(LoginRequiredMixin,View):
 def delete_word(request, pk, word_id):
     word = get_object_or_404(Word, pk=word_id)
     word.delete()
+    print(pk,word_id)
     return JsonResponse({'success': True})
 
 @login_required
@@ -301,82 +302,93 @@ def delete_selected_words(request):
         return JsonResponse({'success': False, 'error': str(e)})
 
 from reportlab.lib.pagesizes import A4
+from django.urls import reverse
 
 
 @login_required
 def generate_pdf(request, folder_id):
     folder = get_object_or_404(Folder, id=folder_id)
-    
+
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{folder.name}_translations.pdf"'
-    
+
     # استخدام حجم A4
     width, height = A4
     p = canvas.Canvas(response, pagesize=A4)
-    
-    # تحميل الخط العربي "Amiri" من الإنترنت
+
+    # تحميل الخط العربي "Amiri" من ال��نترنت
     font_url = "https://github.com/google/fonts/raw/main/ofl/amiri/Amiri-Regular.ttf"
     font_path = os.path.join(settings.MEDIA_ROOT, 'Amiri-Regular.ttf')
-    
+
     if not os.path.exists(font_path):
         font_data = requests.get(font_url).content
         with open(font_path, 'wb') as f:
             f.write(font_data)
-    
+
     # تسجيل الخط العربي
     pdfmetrics.registerFont(TTFont('Amiri', font_path))
-    
+
     def format_arabic(text):
         return get_display(arabic_reshaper.reshape(text))
-    
+
     # إضافة خلفية ملونة
     p.setFillColorRGB(0.95, 0.95, 1)  # لون أزرق فاتح جداً
     p.rect(0, 0, width, height, fill=1)
-    
+
     # إضافة عنوان للمستند
     p.setFillColorRGB(0.2, 0.2, 0.6)  # لون أزرق داكن للعنوان
     p.setFont('Amiri', 24)
     title = format_arabic(f"ترجمات المجلد: {folder.name}")
     p.drawRightString(width - 50, height - 50, title)
-    
+
     # إضافة خط أفقي تحت العنوان
     p.setStrokeColorRGB(0.2, 0.2, 0.6)
     p.line(50, height - 70, width - 50, height - 70)
-    
+
     y_position = height - 100
     words = Word.objects.filter(folder=folder)
-    
+
     for word in words:
         if y_position < 100:
             p.showPage()
             p.setFillColorRGB(0.95, 0.95, 1)
             p.rect(0, 0, width, height, fill=1)
             y_position = height - 50
-        
+
         # رسم مربع خلفي للكلمة
         p.setFillColorRGB(0.9, 0.9, 1)  # لون أزرق فاتح جداً للخلفية
         p.roundRect(50, y_position - 10, width - 100, 40, 10, fill=1)
-        
+
         p.setFillColorRGB(0.2, 0.2, 0.6)  # لون أزرق داكن للنص
         p.setFont('Amiri', 16)
         word_text = format_arabic(f"{word.content}")
         p.drawRightString(width - 60, y_position, word_text)
         y_position -= 30
-        
+
         translations = Translate.objects.filter(word=word)
         for translation in translations:
             p.setFont('Amiri', 14)
             translation_text = format_arabic(f"{translation.translation} :{translation.language.code}")
             p.drawRightString(width - 70, y_position, translation_text)
             y_position -= 25
-        
+
         y_position -= 20
-    
+
     # إضافة رقم الصفحة
     p.setFont('Amiri', 10)
     p.drawRightString(width - 50, 30, str(p.getPageNumber()))
-    
+
     p.showPage()
     p.save()
-    
+
     return response
+
+
+@login_required
+def delete_folder(request, pk):
+    folder = get_object_or_404(Folder, pk=pk)
+    if folder.user != request.user:
+        # Or some other appropriate error page
+        return HttpResponseForbidden("You do not have permission to delete this folder.")
+    folder.delete()
+    return redirect(reverse('folders_words:folders'))

@@ -1,313 +1,220 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}{{folder.name}}{% endblock title %}
+{% block title %}{{ folder.name }}{% endblock title %}
 {% block linksytle %}
 <link rel="stylesheet" href="{% static 'folder.css' %}">
-<style>
-    /* Custom styles for action controls and select-all */
-  
-</style>
 {% endblock linksytle %}
+
 {% block content %}
 <div class="container">
-    <div class="folder-header">
-        <h1>{{folder.name}}</h1>
-        <a href="{% url 'folders_words:generate_pdf' folder.id %}" class="download-link">
-            <i class="fas fa-file-pdf"></i> Download Vocabulary
-        </a>
-    </div>
-<!--     
-    <div class="controls">
-        <div class="search-container-word">
-            <input type="text" id="searchBox" placeholder="Search for a word...">
-            <button id="searchButton">Search</button>
-        </div>
-        
-        <div class="action-controls">
-            <a href="{% url 'folders_words:add_word' folder.pk %}" class="add_word">
-                 Add Word
-            </a>
-            
-            <div class="select-all-container">
-                <input type="checkbox" id="selectAllCheckbox" hidden>
-                <label for="selectAllCheckbox" class="select-all-label">Select All</label>
-            </div>
-        </div>
-    </div> -->
-    
-    {% comment %} <div class="filter-tags">
-        <div class="filter-tag active" data-filter="all">
-            <i class="fas fa-layer-group"></i> All Words
-        </div>
-        <div class="filter-tag" data-filter="recent">
-            <i class="fas fa-clock"></i> Recently Added
-        </div>
-        <div class="filter-tag" data-filter="alphabetical">
-            <i class="fas fa-sort-alpha-down"></i> Alphabetical
-        </div>
-    </div> {% endcomment %}
-    
-    <div class="selection-toolbar" id="selectionToolbar">
-        <div class="selection-count">
-            <span id="selectedCount">0</span> words selected
-        </div>
-        <div class="word-card-actions">          
-            <button id="deleteSelectedBtn" class="delete">
-              Delete Selected
-            </button>
-        </div>
-    </div>
-    
+  <div class="folder-header">
+    <h1>{{ folder.name }}</h1>
     {% if translates %}
-    <div class="word-cards-container">
-        {% for translat in translates %}
-        <div class="word-card" data-word-id="{{ translat.0.word.pk }}">
-            <div class="word-card-checkbox">
-                <input type="checkbox" class="word-checkbox">
-            </div>
-            
-            <div class="word-card-header">
-                <h3>Word #{{ forloop.counter }}</h3>
-            </div>
-            
-            <div class="word-card-content">
-                {% for word in translat %}
-                <div class="word-translation">
-                    <div class="language-label">{{ word.language.get_code_display }}</div>
-                    <div class="translation-text">
-                        {{ word.translation }}
-                        <i class="fas fa-volume-up pronounce-icon" onclick="playAudio('{{ word.voice.url }}')"></i>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            
-            <div class="word-card-actions">
-                <button class="edit" onclick="location.href='{% url 'folders_words:edit_word' pk=folder.pk id=translat.0.word.pk %}'">
-                 Edit
-                </button>
-                <button class="delete" data-word-id="{{ translat.0.word.pk }}">
-                    Delete
-                </button>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% else %}
-    <div class="empty-state">
-        <div class="empty-state-icon">
-            <i class="fas fa-book-open"></i>
-        </div>
-        <p class="empty-state-text">No words in this folder yet. Start building your vocabulary by adding some words.</p>
-        <a href="{% url 'folders_words:add_word' folder.pk %}" class="empty-state-button">
-            <i class="fas fa-plus"></i> Add Your First Word
-        </a>
-    </div>
+      <a href="{% url 'folders_words:generate_pdf' folder.id %}" class="download-link">
+        <i class="fas fa-file-pdf"></i> Download Vocabulary
+      </a>
+      
     {% endif %}
+    <a href="{% url 'folders_words:delete_folder' folder.pk %}" class="delete-folder" onclick="return confirm('Are you sure you want to delete this folder? This action cannot be undone.');">
+        Delete Folder
+      </a>
+  </div>
+
+  <div class="selection-toolbar" id="selectionToolbar">
+    <div class="selection-count">
+      <span id="selectedCount">0</span> words selected
+    </div>
+    <div class="word-card-actions">
+      <button id="deleteSelectedBtn" class="delete">
+        Delete Selected
+      </button>
+    </div>
+  </div>
+
+  {% if translates %}
+    <div class="word-cards-container">
+      {% for translat in translates %}
+      <div class="word-card" data-word-id="{{ translat.0.word.pk }}">
+        <div class="word-card-checkbox">
+          <input type="checkbox" class="word-checkbox">
+        </div>
+
+        <div class="word-card-header">
+          <h3>Word #{{ forloop.counter }}</h3>
+        </div>
+
+        <div class="word-card-content">
+          {% for word in translat %}
+          <div class="word-translation">
+            <div class="language-label">{{ word.language.get_code_display }}</div>
+            <div class="translation-text">
+              {{ word.translation }}
+              <i class="fas fa-volume-up pronounce-icon"
+                 data-audio-url="{{ word.voice.url }}"></i>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="word-card-actions">
+          <button class="edit"
+                  onclick="location.href='{% url 'folders_words:edit_word' pk=folder.pk id=translat.0.word.pk %}'">
+            Edit
+          </button>
+          <button class="delete"
+                  data-action="delete-single"
+                  data-word-id="{{ translat.0.word.pk }}">
+            Delete
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">
+        <i class="fas fa-book-open"></i>
+      </div>
+      <p class="empty-state-text">
+        No words in this folder yet. Start building your vocabulary by adding some words.
+      </p>
+      <a href="{% url 'folders_words:add_word' folder.pk %}" class="empty-state-button">
+        <i class="fas fa-plus"></i> Add Your First Word
+      </a>
+    </div>
+  {% endif %}
 </div>
+{% endblock content %}
+
 {% block scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Global function for playing audio (must be accessible from onclick attribute)
-        window.playAudio = function(audioUrl) {
-            const audio = new Audio(audioUrl);
-            audio.play();
-        }
-        
-        // Search functionality
-        const searchBox = document.getElementById('searchBox');
-        const searchButton = document.getElementById('searchButton');
-        
-        function performSearch() {
-            const searchTerm = searchBox.value.toLowerCase();
-            const wordCards = document.querySelectorAll('.word-card');
-            
-            wordCards.forEach(card => {
-                const translations = card.querySelectorAll('.translation-text');
-                let found = false;
-                
-                translations.forEach(translation => {
-                    if (translation.textContent.toLowerCase().includes(searchTerm)) {
-                        found = true;
-                    }
-                });
-                
-                if (found || searchTerm === '') {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-        
-        searchButton.addEventListener('click', performSearch);
-        searchBox.addEventListener('keyup', function(e) {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
-        
-        // Filter tags functionality
-        const filterTags = document.querySelectorAll('.filter-tag');
-        
-        filterTags.forEach(tag => {
-            tag.addEventListener('click', function() {
-                // Remove active class from all tags
-                filterTags.forEach(t => t.classList.remove('active'));
-                
-                // Add active class to clicked tag
-                this.classList.add('active');
-                
-                const filter = this.getAttribute('data-filter');
-                const wordCards = document.querySelectorAll('.word-card');
-                
-                if (filter === 'all') {
-                    wordCards.forEach(card => {
-                        card.style.display = 'flex';
-                    });
-                } else if (filter === 'recent') {
-                    // Sort by most recent (assuming the last items in the list are most recent)
-                    const container = document.querySelector('.word-cards-container');
-                    const cards = Array.from(wordCards);
-                    cards.reverse().forEach(card => container.appendChild(card));
-                } else if (filter === 'alphabetical') {
-                    // Sort alphabetically by the first translation
-                    const container = document.querySelector('.word-cards-container');
-                    const cards = Array.from(wordCards);
-                    
-                    cards.sort((a, b) => {
-                        const textA = a.querySelector('.translation-text').textContent.trim().toLowerCase();
-                        const textB = b.querySelector('.translation-text').textContent.trim().toLowerCase();
-                        return textA.localeCompare(textB);
-                    });
-                    
-                    cards.forEach(card => container.appendChild(card));
-                }
-            });
-        });
-        
-        // Selection functionality
-        const wordCheckboxes = document.querySelectorAll('.word-checkbox');
-        const selectionToolbar = document.getElementById('selectionToolbar');
-        const selectedCountElement = document.getElementById('selectedCount');
-        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-        const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
-        
-        function updateSelectionToolbar() {
-            const checkedBoxes = document.querySelectorAll('.word-checkbox:checked');
-            const count = checkedBoxes.length;
-            
-            selectedCountElement.textContent = count;
-            
-            if (count > 0) {
-                selectionToolbar.classList.add('active');
-            } else {
-                selectionToolbar.classList.remove('active');
-            }
-        }
-        
-        wordCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', updateSelectionToolbar);
-        });
-        
-     
-        
-        // Select All checkbox functionality (in controls)
-        selectAllCheckbox.addEventListener('change', function() {
-            // Apply the selection state to all checkboxes
-            wordCheckboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
-            });
-            
-          
-           
-            
-            // Update the toolbar to show the count
-            updateSelectionToolbar();
-        });
-        
-        deleteSelectedBtn.addEventListener('click', function() {
-            const selectedWordIds = [];
-            
-            document.querySelectorAll('.word-checkbox:checked').forEach(checkbox => {
-                const card = checkbox.closest('.word-card');
-                selectedWordIds.push(card.dataset.wordId);
-            });
-            
-            if (selectedWordIds.length === 0) {
-                alert("No words selected for deletion.");
-                return;
-            }
-            
-            fetch('{% url "folders_words:delete_selected_words" %}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ word_ids: selectedWordIds })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.querySelectorAll('.word-checkbox:checked').forEach(checkbox => {
-                        const card = checkbox.closest('.word-card');
-                        card.remove();
-                    });
-                    
-                    updateSelectionToolbar();
-                    
-                    // If all words are deleted, show empty state
-                    if (document.querySelectorAll('.word-card').length === 0) {
-                        location.reload();
-                    }
-                    
-                    alert("Selected words deleted successfully.");
-                } else {
-                    alert("Failed to delete selected words.");
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("An error occurred while deleting words.");
-            });
-        });
-        
-        // Individual delete buttons
-        document.querySelectorAll('.word-card .delete').forEach(button => {
-            button.addEventListener('click', function() {
-                const card = button.closest('.word-card');
-                const folderId = "{{ folder.pk }}";
-                const wordId = button.getAttribute('data-word-id');
-                
-                fetch(`/delete_word/${folderId}/${wordId}/`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        card.remove();
-                        
-                        // If all words are deleted, show empty state
-                        if (document.querySelectorAll('.word-card').length === 0) {
-                            location.reload();
-                        }
-                        
-                        alert('Word deleted successfully');
-                    } else {
-                        alert('Failed to delete word');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert("An error occurred while deleting the word.");
-                });
-            });
-        });
+window.addEventListener('DOMContentLoaded', () => {
+  const selectionToolbar    = document.getElementById('selectionToolbar');
+  const selectedCountElem   = document.getElementById('selectedCount');
+  const wordCheckboxes      = Array.from(document.querySelectorAll('.word-checkbox'));
+  const selectAllCheckbox   = document.getElementById('selectAllCheckbox');
+  const deleteSelectedBtn   = document.getElementById('deleteSelectedBtn');
+
+  // play audio
+  window.playAudio = url => {
+    if (!url) return;
+    new Audio(url).play().catch(console.error);
+  };
+
+  // update the bulk‑selection UI
+  function updateSelectionToolbar() {
+    const checked = wordCheckboxes.filter(cb => cb.checked);
+    selectedCountElem.textContent = checked.length;
+    selectionToolbar.classList.toggle('active', checked.length > 0);
+
+    if (selectAllCheckbox) {
+      selectAllCheckbox.checked = checked.length === wordCheckboxes.length;
+      selectAllCheckbox.indeterminate = checked.length > 0 && checked.length < wordCheckboxes.length;
+    }
+  }
+
+  // single‑word deletion
+  function deleteSingle(wordId, cardEl) {
+    if (!confirm('Are you sure you want to delete this word?')) return;
+    fetch(`/delete_word/{{ folder.pk }}/${wordId}/`, {
+      method: 'POST',
+      headers: {'X-CSRFToken': '{{ csrf_token }}'}
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        cardEl.style.opacity = '0.5';
+        cardEl.style.pointerEvents = 'none';
+        setTimeout(() => {
+          cardEl.remove();
+          checkPageState();
+        }, 300);
+      } else {
+        alert('Failed to delete word.');
+      }
+    })
+    .catch(() => alert('An error occurred while deleting the word.'));
+  }
+
+  // bulk deletion
+  function deleteSelected() {
+    const checkedBoxes = wordCheckboxes.filter(cb => cb.checked);
+    if (checkedBoxes.length === 0) {
+      alert('No words selected for deletion.');
+      return;
+    }
+    if (!confirm(`Are you sure you want to delete ${checkedBoxes.length} selected word(s)?`)) {
+      return;
+    }
+    const ids   = checkedBoxes.map(cb => cb.closest('.word-card').dataset.wordId);
+    const cards = checkedBoxes.map(cb => cb.closest('.word-card'));
+
+    fetch('{% url "folders_words:delete_selected_words" %}', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ word_ids: ids })
+    })
+    .then(r => r.ok ? r.json() : Promise.reject(r))
+    .then(data => {
+      if (data.success) {
+        setTimeout(() => {
+          cards.forEach(c => c.remove());
+          updateSelectionToolbar();
+          checkPageState();
+        }, 300);
+      } else {
+        alert(data.error || 'Failed to delete selected words.');
+      }
+    })
+    .catch(() => alert('An error occurred while deleting words.'));
+  }
+
+  // check if container is empty
+  function checkPageState() {
+    const remaining = document.querySelectorAll('.word-card').length;
+    if (remaining === 0) {
+      const emptyState = document.querySelector('.empty-state');
+      const container  = document.querySelector('.word-cards-container');
+      if (container) container.style.display = 'none';
+      if (emptyState) emptyState.style.display = 'block';
+      else location.reload();
+    }
+  }
+
+  // Event bindings
+  wordCheckboxes.forEach(cb => cb.addEventListener('change', updateSelectionToolbar));
+  if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('change', () => {
+      wordCheckboxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
+      updateSelectionToolbar();
     });
+  }
+  if (deleteSelectedBtn) {
+    deleteSelectedBtn.addEventListener('click', deleteSelected);
+  }
+
+  // event delegation for single‑delete & play icons
+  document.body.addEventListener('click', e => {
+    const tgt = e.target;
+    // single delete
+    if (tgt.matches('[data-action="delete-single"]')) {
+      e.preventDefault();
+      const card = tgt.closest('.word-card');
+      deleteSingle(tgt.dataset.wordId, card);
+    }
+    // play audio
+    if (tgt.classList.contains('pronounce-icon')) {
+      e.preventDefault();
+      playAudio(tgt.dataset.audioUrl);
+    }
+  });
+
+  // initial state
+  updateSelectionToolbar();
+  checkPageState();
+});
 </script>
 {% endblock scripts %}
-{% endblock content %}

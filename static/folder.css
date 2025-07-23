@@ -1,6 +1,18 @@
 :root {
-    --primary-color: #3498db;
-    --primary-dark: #2980b9;
+.delete-folder {
+    background-color: #f44336; /* Red */
+    color: white;
+    padding: 10px 20px;
+    margin-left: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.delete-folder:hover {
+    background-color: #d32f2f; /* Darker red */
+}
     --secondary-color: #2ecc71;
     --secondary-dark: #27ae60;
     --accent-color: #e74c3c;

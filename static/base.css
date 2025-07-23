@@ -279,7 +279,9 @@ body {
         font-size: 14px;
         padding: 8px 12px;
     }
-    
+    .topnav .links{
+        display: none;
+    }
     .open-btn {
         display: flex;
         margin-left: 10px;

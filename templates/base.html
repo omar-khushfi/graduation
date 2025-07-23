@@ -10,7 +10,7 @@
     <title>{% block title %}{% endblock title %}</title>
     {% block linksytle %}{% endblock linksytle %}
 </head>
-<body class="{% if user.theme %}dark-theme{% else %}light-theme{% endif %}">
+<body class="">
     <div class="topnav">
         <button class="open-btn" onclick="toggleNav()">
             <i class="fas fa-bars"></i>
@@ -37,7 +37,7 @@
     </div>
 
     <div class="side-menu" id="sideMenu">
-        <a href="{% url 'folders_words:folders' %}" onclick="toggleNav()"><i class="fas fa-folder"></i> Folders</a>
+        <a href="{% url 'folders_words:folders' %}" onclick="toggleNav()"><i class="fas fa-folder"></i> Home</a>
         <a href="{% url 'exam:create_exam' %}" onclick="toggleNav()"><i class="fas fa-file-alt"></i> Create Exam</a>
         <a href="{% url 'accounts:profile' %}" onclick="toggleNav()"><i class="fas fa-user-circle"></i> Profile</a>
         <a href="{% url 'accounts:logout_view' %}" onclick="toggleNav()"><i class="fas fa-sign-out-alt"></i> Logout</a>
@@ -48,10 +48,7 @@
     </div>
     
     <script>
-        // Theme toggle
-        document.querySelector('.checkbox').addEventListener('change', function() {
-            this.closest('form').submit();
-        });
+        
         
         // Make sure side menu is hidden on page load
         document.addEventListener('DOMContentLoaded', function() {

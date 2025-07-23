@@ -19,9 +19,7 @@
             <p class="signup-text">
                 <a href="{% url 'accounts:forgot-password' %}" class="forgot-password-link" >Reset Password</a>
             </p>
-            {% comment %} {% if account %}
-                <p class="signup-text">Don't have an account? <a href="{% url 'signup_view' %}" class="signup-link">Sign up now</a></p>
-            {% endif %} {% endcomment %}
+                <p class="signup-text">Don't have an account? <a href="{% url 'accounts:signup_view' %}" class="signup-link">Sign up now</a></p>
         </div>
     </div>
 {% endblock %}
