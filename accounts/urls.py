@@ -17,7 +17,6 @@ urlpatterns = [
     path('profile/',views.profile,name="profile"),
     path('update_profile/', views.update_profile, name='update_profile'),
     path('edit-languages/', views.edit_languages, name='edit_languages'),
-    path('theme/', views.Theme, name='theme_mode'),
     
 
    

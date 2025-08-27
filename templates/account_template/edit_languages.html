@@ -9,7 +9,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <h2 class="section-title mb-4">إدارة اللغات</h2>
+            <h2 class="section-title mb-4">Language Management</h2>
             
             {% if messages %}
             <div class="messages-container">
@@ -33,7 +33,7 @@
             
             <div class="card">
                 <div class="card-header">
-                    <h5>تخصيص اللغات</h5>
+                    <h5>Customize Languages</h5>
                 </div>
                 <div class="card-body">
                     <form method="post">
@@ -43,19 +43,26 @@
                         <div id="language-forms" class="language-container">
                             {% for form in formset %}
                             <div class="language-item">
-                                {{ form.id }}
+                                {% for hidden in form.hidden_fields %}
+                                    {{ hidden }}
+                                {% endfor %}
                                 <div class="language-content">
                                     <div class="language-main">
                                         <div class="form-group">
-                                            <label for="{{ form.code.id_for_label }}" class="form-label">اللغة:</label>
+                                            <label for="{{ form.code.id_for_label }}" class="form-label">Language:</label>
                                             {{ form.code }}
                                         </div>
                                         <div class="form-check native-check">
                                             <label for="{{ form.is_native.id_for_label }}" class="form-check-label">
-                                                {{ form.is_native }} <span>اللغة الأم</span>
+                                                {{ form.is_native }} <span>Native Language</span>
                                             </label>
-                                            <small class="native-language-note">يمكن تحديد لغة أم واحدة فقط</small>
+                                            <small class="native-language-note">Only one language can be set as native</small>
                                         </div>
+                                        {% if form.DELETE %}
+                                        <div class="form-check" style="display: none;">
+                                            {{ form.DELETE }}
+                                        </div>
+                                        {% endif %}
                                     </div>
                                     {% if not forloop.first %}
                                     <div class="language-actions">
@@ -71,10 +78,10 @@
                         
                         <div class="form-actions">
                             <button type="button" id="add-language" class="btn-add">
-                                <i class="fas fa-plus-circle"></i> إضافة لغة جديدة
+                                <i class="fas fa-plus-circle"></i> Add New Language
                             </button>
                             <button type="submit" class="btn-save">
-                                <i class="fas fa-save"></i> حفظ التغييرات
+                                <i class="fas fa-save"></i> Save Changes
                             </button>
                         </div>
                     </form>
@@ -85,14 +92,10 @@
 </div>
 
 <style>
-    /* توجيه الصفحة للعربية */
     body {
-        direction: rtl;
-        text-align: right;
-        font-family: 'Cairo', 'Tajawal', sans-serif;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     
-    /* تنسيق العنوان الرئيسي */
     .section-title {
         color: #2c3e50;
         font-weight: 700;
@@ -106,14 +109,13 @@
         content: '';
         position: absolute;
         bottom: 0;
-        right: 50%;
-        transform: translateX(50%);
+        left: 50%;
+        transform: translateX(-50%);
         width: 80px;
         height: 3px;
         background: linear-gradient(90deg, #3498db, #2980b9);
     }
     
-    /* تنسيق البطاقة */
     .card {
         border: none;
         border-radius: 15px;
@@ -146,7 +148,6 @@
         background-color: #f8f9fa;
     }
     
-    /* تنسيق حاوية الرسائل */
     .messages-container {
         margin-bottom: 20px;
     }
@@ -176,17 +177,17 @@
     
     .message-box.success {
         background-color: #e8f5e9;
-        border-right: 4px solid #4caf50;
+        border-left: 4px solid #4caf50;
     }
     
     .message-box.error {
         background-color: #ffebee;
-        border-right: 4px solid #f44336;
+        border-left: 4px solid #f44336;
     }
     
     .message-box.info {
         background-color: #e3f2fd;
-        border-right: 4px solid #2196f3;
+        border-left: 4px solid #2196f3;
     }
     
     .message-content {
@@ -195,7 +196,7 @@
     }
     
     .message-icon {
-        margin-left: 12px;
+        margin-right: 12px;
         font-size: 18px;
     }
     
@@ -224,7 +225,6 @@
         color: #555;
     }
     
-    /* تنسيق عناصر اللغات */
     .language-container {
         max-height: 400px;
         overflow-y: auto;
@@ -259,22 +259,20 @@
     .language-actions {
         display: flex;
         align-items: center;
-        margin-right: 15px;
+        margin-left: 15px;
     }
     
-    /* الهزة عند الحذف */
     @keyframes shake {
         0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-10px); }
-        50% { transform: translateX(10px); }
-        75% { transform: translateX(-10px); }
+        25% { transform: translateX(10px); }
+        50% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
     }
     
     .shake {
         animation: shake 0.5s linear;
     }
     
-    /* تنسيق العناصر النصية */
     .form-group {
         margin-bottom: 15px;
     }
@@ -297,8 +295,8 @@
         appearance: none;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23333' viewBox='0 0 16 16'%3E%3Cpath d='M8 13l-7-7 1.41-1.41L8 10.17l5.59-5.58L15 6l-7 7z'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
-        background-position: left 15px center;
-        padding-left: 30px;
+        background-position: right 15px center;
+        padding-right: 30px;
     }
     
     select:focus {
@@ -307,7 +305,6 @@
         outline: none;
     }
     
-    /* تنسيق مربع اختيار اللغة الأم */
     .native-check {
         display: flex;
         align-items: center;
@@ -318,7 +315,7 @@
         display: flex;
         align-items: center;
         cursor: pointer;
-        margin-left: 0;
+        margin-right: 0;
         margin-bottom: 0;
         font-weight: 600;
         color: #4a5568;
@@ -327,18 +324,17 @@
     input[type="checkbox"] {
         width: 18px;
         height: 18px;
-        margin-left: 8px;
+        margin-right: 8px;
         cursor: pointer;
         accent-color: #3498db;
     }
     
     .native-language-note {
         color: #718096;
-        margin-right: 10px;
+        margin-left: 10px;
         font-size: 0.85rem;
     }
     
-    /* تنسيق الأزرار */
     .form-actions {
         display: flex;
         justify-content: space-between;
@@ -367,6 +363,7 @@
     
     .btn-add:hover {
         background-color: #bbdefb;
+        transform: translateY(-3px);
     }
     
     .btn-save {
@@ -377,6 +374,7 @@
     
     .btn-save:hover {
         background-color: #1976d2;
+        transform: translateY(-3px);
     }
     
     .btn-delete {
@@ -390,14 +388,14 @@
     
     .btn-delete:hover {
         background-color: #ffcdd2;
+        transform: translateY(-3px);
     }
     
     .btn-add i,
     .btn-save i {
-        margin-left: 8px;
+        margin-right: 8px;
     }
     
-    /* تعديلات للتوافق مع الشاشات الصغيرة */
     @media (max-width: 768px) {
         .form-actions {
             flex-direction: column;
@@ -414,11 +412,10 @@
         
         .language-actions {
             margin-top: 10px;
-            margin-right: 0;
+            margin-left: 0;
         }
     }
     
-    /* تحسين التمرير */
     ::-webkit-scrollbar {
         width: 8px;
     }
@@ -440,65 +437,57 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // التحقق من اللغة الأم - ضمان أن لغة الأم واحدة فقط
+        // Native language validation setup
         function setupNativeLanguageChecks() {
-            const nativeCheckboxes = document.querySelectorAll('input[id$="-is_native"]');
+            const nativeCheckboxes = document.querySelectorAll('input[name$="-is_native"]');
             
             nativeCheckboxes.forEach(checkbox => {
-                // إزالة أي مستمعي أحداث سابقة
                 checkbox.removeEventListener('change', handleNativeLanguageChange);
-                // إضافة مستمع الحدث
                 checkbox.addEventListener('change', handleNativeLanguageChange);
             });
         }
         
-        // معالجة تغيير حالة خانة اختيار اللغة الأم
         function handleNativeLanguageChange(event) {
             const currentCheckbox = event.target;
             
-            // إذا تم تحديد الخانة، قم بإلغاء تحديد جميع الخانات الأخرى
             if (currentCheckbox.checked) {
-                const allNativeCheckboxes = document.querySelectorAll('input[id$="-is_native"]');
+                const allNativeCheckboxes = document.querySelectorAll('input[name$="-is_native"]');
                 
                 allNativeCheckboxes.forEach(checkbox => {
                     if (checkbox !== currentCheckbox && checkbox.checked) {
                         checkbox.checked = false;
-                        
-                        // إظهار تنبيه للمستخدم
-                        showMessage('تم تغيير اللغة الأم. يمكن تحديد لغة أم واحدة فقط.', 'info');
                     }
                 });
+                
+                showMessage('Native language changed. Only one language can be set as native.', 'info');
             }
         }
         
-        // عرض رسالة للمستخدم
         function showMessage(message, type = 'info') {
-            const messagesContainer = document.querySelector('.messages-container');
+            let messagesContainer = document.querySelector('.messages-container');
+            
+            if (!messagesContainer) {
+                messagesContainer = document.createElement('div');
+                messagesContainer.className = 'messages-container';
+                const card = document.querySelector('.card');
+                card.parentNode.insertBefore(messagesContainer, card);
+            }
+            
             const messageBox = document.createElement('div');
             messageBox.className = `message-box ${type}`;
             
+            const iconClass = type === 'success' ? 'check' : type === 'error' ? 'exclamation' : 'info';
+            
             messageBox.innerHTML = `
                 <div class="message-content">
-                    <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation' : 'info'}-circle message-icon"></i>
+                    <i class="fas fa-${iconClass}-circle message-icon"></i>
                     <span>${message}</span>
                 </div>
                 <button type="button" class="message-close" onclick="this.parentElement.style.display='none'">&times;</button>
             `;
             
-            if (messagesContainer) {
-                messagesContainer.appendChild(messageBox);
-            } else {
-                // إنشاء حاوية الرسائل إذا لم تكن موجودة
-                const newMessagesContainer = document.createElement('div');
-                newMessagesContainer.className = 'messages-container';
-                newMessagesContainer.appendChild(messageBox);
-                
-                // إضافة الحاوية قبل البطاقة الرئيسية
-                const card = document.querySelector('.card');
-                card.parentNode.insertBefore(newMessagesContainer, card);
-            }
+            messagesContainer.appendChild(messageBox);
             
-            // إضافة تأثير انيميشن للظهور
             messageBox.style.opacity = '0';
             messageBox.style.transform = 'translateY(-10px)';
             
@@ -507,200 +496,257 @@
                 messageBox.style.transform = 'translateY(0)';
             }, 10);
             
-            // إزالة الرسالة بعد 5 ثوانٍ
             setTimeout(() => {
-                messageBox.style.opacity = '0';
-                messageBox.style.transform = 'translateY(-10px)';
-                setTimeout(() => messageBox.remove(), 300);
+                if (messageBox.parentNode) {
+                    messageBox.style.opacity = '0';
+                    messageBox.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        if (messageBox.parentNode) {
+                            messageBox.remove();
+                        }
+                    }, 300);
+                }
             }, 5000);
         }
         
-        // تنفيذ التحقق من اللغة الأم عند تحميل الصفحة
         setupNativeLanguageChecks();
         
-        // إضافة لغة جديدة
+        // Add new language
         document.getElementById('add-language').addEventListener('click', function() {
-            const forms = document.querySelectorAll('.language-item');
-            const formCount = forms.length;
+            const totalFormsInput = document.querySelector('input[name$="TOTAL_FORMS"]');
+            const maxFormsInput = document.querySelector('input[name$="MAX_NUM_FORMS"]');
             
-            // نسخ آخر نموذج
-            const lastForm = forms[formCount - 1];
-            const newForm = lastForm.cloneNode(true);
-            
-            // تحديث معرفات النموذج وأسمائه
-            const formRegex = RegExp(`form-(\\d){1}-`,'g');
-            const replacement = `form-${formCount}-`;
-            
-            newForm.innerHTML = newForm.innerHTML.replace(formRegex, replacement);
-            
-            // مسح القيم
-            const inputs = newForm.querySelectorAll('input:not([type="hidden"])');
-            inputs.forEach(input => {
-                if (input.type === 'checkbox') {
-                    input.checked = false;
-                } else {
-                    input.value = '';
-                }
-            });
-            
-            // إعادة تعيين القائمة المنسدلة
-            const selects = newForm.querySelectorAll('select');
-            selects.forEach(select => {
-                select.selectedIndex = 0;
-            });
-            
-            // إضافة زر الحذف
-            const actionDiv = newForm.querySelector('.language-content');
-            if (actionDiv && !actionDiv.querySelector('.language-actions')) {
-                const mainDiv = actionDiv.querySelector('.language-main');
-                const actionsDiv = document.createElement('div');
-                actionsDiv.className = 'language-actions';
-                actionsDiv.innerHTML = `
-                    <button type="button" class="btn-delete" onclick="removeLanguage(this)">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                `;
-                actionDiv.appendChild(actionsDiv);
+            if (!totalFormsInput) {
+                console.error('TOTAL_FORMS input not found');
+                showMessage('Error adding new language', 'error');
+                return;
             }
             
-            // تحديث نموذج الإدارة
-            const totalForms = document.querySelector('[name="form-TOTAL_FORMS"]');
-            totalForms.value = formCount + 1;
+            const formCount = parseInt(totalFormsInput.value);
+            const maxForms = maxFormsInput ? parseInt(maxFormsInput.value) : 1000;
             
-            // إضافة تأثير ظهور للنموذج الجديد
-            newForm.style.opacity = '0';
-            newForm.style.transform = 'translateY(20px)';
+            if (formCount >= maxForms) {
+                showMessage('Maximum number of languages reached', 'error');
+                return;
+            }
             
-            // إضافة النموذج الجديد
-            document.getElementById('language-forms').appendChild(newForm);
+            // Create new form
+            const emptyForm = createEmptyForm(formCount);
             
-            // تطبيق تأثير الظهور
+            // Add form to page
+            const languageContainer = document.getElementById('language-forms');
+            languageContainer.appendChild(emptyForm);
+            
+            // Update counter
+            totalFormsInput.value = formCount + 1;
+            
+            // Setup animations
+            emptyForm.style.opacity = '0';
+            emptyForm.style.transform = 'translateY(20px)';
+            
             setTimeout(() => {
-                newForm.style.opacity = '1';
-                newForm.style.transform = 'translateY(0)';
+                emptyForm.style.opacity = '1';
+                emptyForm.style.transform = 'translateY(0)';
             }, 10);
             
-            // التمرير إلى النموذج الجديد
             setTimeout(() => {
-                newForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                
-                // إعادة تعيين التحقق من اللغة الأم بعد إضافة نموذج جديد
+                emptyForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 setupNativeLanguageChecks();
             }, 300);
         });
         
-        // إضافة تأثيرات للأزرار
-        const buttons = document.querySelectorAll('.btn-add, .btn-save, .btn-delete');
-        buttons.forEach(button => {
-            button.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-3px)';
-            });
-            button.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0)';
-            });
-        });
+        function createEmptyForm(formIndex) {
+            const formDiv = document.createElement('div');
+            formDiv.className = 'language-item';
+            
+            formDiv.innerHTML = `
+                <input type="hidden" name="language-${formIndex}-id" id="id_language-${formIndex}-id">
+                <div class="language-content">
+                    <div class="language-main">
+                        <div class="form-group">
+                            <label for="id_language-${formIndex}-code" class="form-label">Language:</label>
+                            <select name="language-${formIndex}-code" class="form-select language-select" id="id_language-${formIndex}-code">
+                                <option value="">---------</option>
+                                ${getLanguageOptions()}
+                            </select>
+                        </div>
+                        <div class="form-check native-check">
+                            <label for="id_language-${formIndex}-is_native" class="form-check-label">
+                                <input type="checkbox" name="language-${formIndex}-is_native" class="form-check-input native-checkbox" id="id_language-${formIndex}-is_native">
+                                <span>Native Language</span>
+                            </label>
+                            <small class="native-language-note">Only one language can be set as native</small>
+                        </div>
+                        <div class="form-check" style="display: none;">
+                            <input type="checkbox" name="language-${formIndex}-DELETE" id="id_language-${formIndex}-DELETE">
+                        </div>
+                    </div>
+                    <div class="language-actions">
+                        <button type="button" class="btn-delete" onclick="removeLanguage(this)">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return formDiv;
+        }
+        
+        function getLanguageOptions() {
+            // Use available options from template
+            const existingSelect = document.querySelector('select[name$="-code"]');
+            if (existingSelect) {
+                return existingSelect.innerHTML;
+            }
+            
+            // Default simple options
+            return `
+                <option value="ar">Arabic</option>
+                <option value="en">English</option>
+                <option value="fr">French</option>
+                <option value="es">Spanish</option>
+                <option value="de">German</option>
+                <option value="it">Italian</option>
+                <option value="ru">Russian</option>
+                <option value="zh">Chinese</option>
+                <option value="ja">Japanese</option>
+                <option value="ko">Korean</option>
+            `;
+        }
     });
     
-    // دالة إزالة اللغة - معرفة عالميًا لتكون متاحة للـ onclick
     function removeLanguage(button) {
-        // العثور على النموذج الأقرب
-        const form = button.closest('.language-item');
-        
-        // التحقق مما إذا كانت اللغة المحذوفة هي اللغة الأم
-        const isNativeCheckbox = form.querySelector('input[id$="-is_native"]');
+        const languageItem = button.closest('.language-item');
+        const deleteCheckbox = languageItem.querySelector('input[name$="-DELETE"]');
+        const isNativeCheckbox = languageItem.querySelector('input[name$="-is_native"]');
         const wasNative = isNativeCheckbox && isNativeCheckbox.checked;
         
-        // تطبيق تأثير الاهتزاز قبل الحذف
-        form.classList.add('shake');
-        
-        // تأخير قبل بدء تأثير التلاشي
-        setTimeout(() => {
-            // تطبيق تأثير التلاشي
-            form.style.opacity = '0';
-            form.style.transform = 'translateY(-20px)';
+        // If the form exists in database, mark it for deletion
+        if (deleteCheckbox && languageItem.querySelector('input[name$="-id"]').value) {
+            deleteCheckbox.checked = true;
+            languageItem.style.opacity = '0.5';
+            languageItem.style.pointerEvents = 'none';
             
-            // حذف النموذج بعد اكتمال التأثير
+            // Hide delete button
+            button.style.display = 'none';
+            
+            // Add text indicating it will be deleted
+            const deleteNote = document.createElement('span');
+            deleteNote.textContent = 'Will be deleted on save';
+            deleteNote.style.color = '#f44336';
+            deleteNote.style.fontSize = '12px';
+            button.parentElement.appendChild(deleteNote);
+            
+            if (wasNative) {
+                showMessage('Language marked for deletion. Please select a new native language before saving.', 'info');
+            }
+        } else {
+            // If it's a new form, delete it directly
+            languageItem.classList.add('shake');
+            
             setTimeout(() => {
-                form.remove();
+                languageItem.style.opacity = '0';
+                languageItem.style.transform = 'translateY(-20px)';
                 
-                // تحديث أرقام النماذج
-                updateFormNumbers();
-                
-                // إذا كانت اللغة المحذوفة هي اللغة الأم، عرض رسالة
-                if (wasNative) {
-                    // عرض رسالة تنبيه عن حذف اللغة الأم
-                    const messagesContainer = document.querySelector('.messages-container');
-                    if (messagesContainer) {
-                        const showMessage = new Function(`
-                            const messagesContainer = document.querySelector('.messages-container');
-                            const messageBox = document.createElement('div');
-                            messageBox.className = 'message-box info';
-                            
-                            messageBox.innerHTML = \`
-                                <div class="message-content">
-                                    <i class="fas fa-info-circle message-icon"></i>
-                                    <span>تم حذف اللغة الأم. يرجى تحديد لغة أم جديدة.</span>
-                                </div>
-                                <button type="button" class="message-close" onclick="this.parentElement.style.display='none'">&times;</button>
-                            \`;
-                            
-                            messagesContainer.appendChild(messageBox);
-                            
-                            // إضافة تأثير انيميشن للظهور
-                            messageBox.style.opacity = '0';
-                            messageBox.style.transform = 'translateY(-10px)';
-                            
-                            setTimeout(() => {
-                                messageBox.style.opacity = '1';
-                                messageBox.style.transform = 'translateY(0)';
-                            }, 10);
-                            
-                            // إزالة الرسالة بعد 5 ثوانٍ
-                            setTimeout(() => {
-                                messageBox.style.opacity = '0';
-                                messageBox.style.transform = 'translateY(-10px)';
-                                setTimeout(() => messageBox.remove(), 300);
-                            }, 5000);
-                        `);
-                        showMessage();
+                setTimeout(() => {
+                    languageItem.remove();
+                    updateFormNumbers();
+                    
+                    if (wasNative) {
+                        showMessage('Native language removed. Please select a new native language.', 'info');
                     }
-                }
-            }, 300);
-        }, 400);
+                }, 300);
+            }, 400);
+        }
     }
     
-    // تحديث أرقام النماذج بعد الحذف
     function updateFormNumbers() {
-        const forms = document.querySelectorAll('.language-item');
-        const totalForms = document.querySelector('[name="form-TOTAL_FORMS"]');
+        const totalFormsInput = document.querySelector('input[name$="TOTAL_FORMS"]');
+        const languageItems = document.querySelectorAll('.language-item');
         
-        totalForms.value = forms.length;
+        if (!totalFormsInput) {
+            console.error('TOTAL_FORMS input not found');
+            return;
+        }
         
-        forms.forEach((form, index) => {
-            const inputs = form.querySelectorAll('input, select');
+        let formIndex = 0;
+        languageItems.forEach(item => {
+            if (item.style.display === 'none') return; // Skip hidden elements
+            
+            const inputs = item.querySelectorAll('input, select');
             inputs.forEach(input => {
                 const name = input.getAttribute('name');
                 if (name) {
-                    const newName = name.replace(/form-\d+-/, `form-${index}-`);
+                    const newName = name.replace(/language-\d+-/, `language-${formIndex}-`);
                     input.setAttribute('name', newName);
                     
                     const id = input.getAttribute('id');
                     if (id) {
-                        const newId = id.replace(/form-\d+-/, `form-${index}-`);
+                        const newId = id.replace(/id_language-\d+-/, `id_language-${formIndex}-`);
                         input.setAttribute('id', newId);
                     }
                 }
             });
             
-            const labels = form.querySelectorAll('label');
+            const labels = item.querySelectorAll('label');
             labels.forEach(label => {
                 const forAttr = label.getAttribute('for');
                 if (forAttr) {
-                    const newForAttr = forAttr.replace(/form-\d+-/, `form-${index}-`);
+                    const newForAttr = forAttr.replace(/id_language-\d+-/, `id_language-${formIndex}-`);
                     label.setAttribute('for', newForAttr);
                 }
             });
+            
+            formIndex++;
         });
+        
+        totalFormsInput.value = formIndex;
+    }
+    
+    function showMessage(message, type = 'info') {
+        let messagesContainer = document.querySelector('.messages-container');
+        
+        if (!messagesContainer) {
+            messagesContainer = document.createElement('div');
+            messagesContainer.className = 'messages-container';
+            const card = document.querySelector('.card');
+            card.parentNode.insertBefore(messagesContainer, card);
+        }
+        
+        const messageBox = document.createElement('div');
+        messageBox.className = `message-box ${type}`;
+        
+        const iconClass = type === 'success' ? 'check' : type === 'error' ? 'exclamation' : 'info';
+        
+        messageBox.innerHTML = `
+            <div class="message-content">
+                <i class="fas fa-${iconClass}-circle message-icon"></i>
+                <span>${message}</span>
+            </div>
+            <button type="button" class="message-close" onclick="this.parentElement.style.display='none'">&times;</button>
+        `;
+        
+        messagesContainer.appendChild(messageBox);
+        
+        messageBox.style.opacity = '0';
+        messageBox.style.transform = 'translateY(-10px)';
+        
+        setTimeout(() => {
+            messageBox.style.opacity = '1';
+            messageBox.style.transform = 'translateY(0)';
+        }, 10);
+        
+        setTimeout(() => {
+            if (messageBox.parentNode) {
+                messageBox.style.opacity = '0';
+                messageBox.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    if (messageBox.parentNode) {
+                        messageBox.remove();
+                    }
+                });
+            }
+        }, 5000);
     }
 </script>
 {% endblock content %}

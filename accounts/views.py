@@ -22,9 +22,7 @@ from django.core.mail import EmailMessage
 import pycountry
 from django.contrib.auth.decorators import login_required
 from django.forms import modelformset_factory
-
-
-
+from .forms import *
 
 def generate_random_code(length=6):
     characters = string.ascii_letters + string.digits  
@@ -145,7 +143,7 @@ def update_profile(request):
     
     if request.method == 'POST':
         form = UserUpdateForm(request.POST, instance=user)
-        if User.objects.filter(email=request.POST.get("email")):
+        if User.objects.filter(email=request.POST.get("email")) and request.POST.get("email") != user.email:
             messages.error(request, "This email already exists")
 
             return render(request, 'account_template/update_profile.html', {'form': form})

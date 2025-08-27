@@ -19,7 +19,9 @@
         Delete Folder
       </a>
   </div>
-
+   <a href="{% url 'folders_words:add_word' folder.pk %}" class="empty-state-button">
+        <i class="fas fa-plus"></i> Add Your Word
+      </a>
   <div class="selection-toolbar" id="selectionToolbar">
     <div class="selection-count">
       <span id="selectedCount">0</span> words selected
