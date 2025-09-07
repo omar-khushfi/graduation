@@ -9,6 +9,7 @@ import requests
 from django.core.paginator import Paginator,EmptyPage,PageNotAnInteger
 from gtts import gTTS
 import os
+from datetime import datetime
 import re
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -107,46 +108,55 @@ class folders(LoginRequiredMixin,View):
         return render(request,'folders.html',context)
     
     
-class folder(LoginRequiredMixin,View):
+class folder(LoginRequiredMixin, View):
     login_url = 'account/login/'  
 
-    def post(self,request,pk):
-       pass
-    def get(self,request,pk):
-        user=request.user
-        folder=get_object_or_404(Folder,pk=pk)
-        languages=Language.objects.filter(user=user)
-        words=Word.objects.filter(folder=folder,user=user)
-        main_lang=Language.objects.get(user=user,is_native=True)
-        all_translate=[]
-        if Word.objects.all().count()>0:
-            for wo in words:
-                word=[]
-                for la in languages:
-                    qyword=""
-                    
-                    if Translate.objects.filter(language=la,word=wo,user=user).exists():
-                        qyword=Translate.objects.get(language=la,word=wo,user=user)
-                    else:
+    def post(self, request, pk):
+        pass
 
-                        nativ_trans=Translate.objects.get(user=user,word=wo,language=main_lang)
-                        translated = translate_text_mymemory(nativ_trans.word.content, nativ_trans.language.code, la.code)
+    def get(self, request, pk):
+        user = request.user
+        folder = get_object_or_404(Folder, pk=pk)
+        languages = Language.objects.filter(user=user)
+        words = Word.objects.filter(folder=folder, user=user)
+        main_lang = Language.objects.get(user=user, is_native=True)
+
+        # --- pagination ---
+        page_number = request.GET.get("page")
+        paginator = Paginator(words, 9)  
+        page_obj = paginator.get_page(page_number)
+        words_page = page_obj.object_list
+
+        all_translate = []
+        if words_page.count() > 0:
+            for wo in words_page:
+                word = []
+                for la in languages:
+                    qyword = ""
+                    if Translate.objects.filter(language=la, word=wo, user=user).exists():
+                        qyword = Translate.objects.get(language=la, word=wo, user=user)
+                    else:
+                        nativ_trans = Translate.objects.get(user=user, word=wo, language=main_lang)
+                        translated = translate_text_mymemory(
+                            nativ_trans.word.content,
+                            nativ_trans.language.code,
+                            la.code
+                        )
                         voice_path = generate_pronunciation(translated, la, user.id)       
-                        
-                        qyword=Translate.objects.create(language=la,word=wo,user=user,translation=translated, voice=voice_path)
+                        qyword = Translate.objects.create(
+                            language=la, word=wo, user=user,
+                            translation=translated, voice=voice_path
+                        )
                     word.append(qyword)
                 all_translate.append(word)
-                
-        
-        context={
-            'folder':folder,
-            'translates':all_translate,
-            'languages':languages
+
+        context = {
+            'folder': folder,
+            'translates': all_translate,
+            'languages': languages,
+            'page_obj': page_obj,
         }
-        return render(request,'folder.html',context)
-    
-    
- 
+        return render(request, 'folder.html', context)
  
  
 
@@ -182,39 +192,6 @@ class AddWordView(LoginRequiredMixin, View):
         
         return render(request,'enter_word.html')
     
-    
-# الإنجليزية (en)
-# الإسبانية (es)
-# الفرنسية (fr)
-# الألمانية (de)
-# الإيطالية (it)
-# البرتغالية (pt)
-# الروسية (ru)
-# العربية (ar)
-# الصينية المبسطة (zh)
-# اليابانية (ja)
-# الكورية (ko)
-# الهولندية (nl)
-# البولندية (pl)
-# السويدية (sv)
-# الدنماركية (da)
-# النرويجية (no)
-# الفيتنامية (vi)
-# التشيكية (cs)
-# التركية (tr)
-# اليونانية (el)
-# الهنغارية (hu)
-# الفلمنكية (nl)
-# الرومانية (ro)
-# السلوفينية (sl)
-# السلوفاكية (sk)
-# الكرواتية (hr)
-# البلغارية (bg)
-# الإستونية (et)
-# اللتوانية (lt)
-# المالطية (mt)
-# الأوكرانية (uk)
-# الفلبينية (tl)
 
 
 class edit_word(LoginRequiredMixin,View):
@@ -226,9 +203,7 @@ class edit_word(LoginRequiredMixin,View):
         translates=Translate.objects.filter(word=word,user=user)
         languages=Language.objects.filter(user=user)
         
-        # Debug print statements
-        print("Debug: Translates count:", translates.count())
-        print("Debug: Languages count:", languages.count())
+     
         
         for translate in translates:
             print(f"Debug: Translate - Language: {translate.language}, Code: {translate.language.code}, Display: {translate.language.get_code_display()}")
@@ -252,7 +227,6 @@ class edit_word(LoginRequiredMixin,View):
         for key,value in items:
             if value!="" and key.startswith("translate_"):
                 if "new_" in key:
-                    # معالجة الترجمات الجديدة
                     lang_id = key.split("_")[-1]
                     try:
                         language = Language.objects.get(id=lang_id, user=user)
@@ -268,7 +242,6 @@ class edit_word(LoginRequiredMixin,View):
                     except Exception as e:
                         print(f"Error creating new translation: {e}")
                 else:
-                    # تحديث الترجمات الموجودة
                     new_key=key[10:]
                     try:
                         translate=Translate.objects.get(id=new_key)
@@ -280,8 +253,7 @@ class edit_word(LoginRequiredMixin,View):
                     except Exception as e:
                         print(f"Error updating translation: {e}")
         if updated:
-            messages.success(request, "تم تحديث الكلمة بنجاح")
-        # استخدم str(pk) للتأكد من أن pk ليس فارغًا وأنه قيمة صالحة
+            messages.success(request, "The word has been updated successfully.")
         return redirect('folders_words:folder', pk=str(pk))        
 
 @login_required
@@ -308,87 +280,212 @@ from django.urls import reverse
 @login_required
 def generate_pdf(request, folder_id):
     folder = get_object_or_404(Folder, id=folder_id)
-
+    
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{folder.name}_translations.pdf"'
-
-    # استخدام حجم A4
+    
     width, height = A4
     p = canvas.Canvas(response, pagesize=A4)
-
-    # تحميل الخط العربي "Amiri" من ال��نترنت
+    
+    # Use the original font loading code without changes
     font_url = "https://github.com/google/fonts/raw/main/ofl/amiri/Amiri-Regular.ttf"
     font_path = os.path.join(settings.MEDIA_ROOT, 'Amiri-Regular.ttf')
-
+    
     if not os.path.exists(font_path):
         font_data = requests.get(font_url).content
         with open(font_path, 'wb') as f:
             f.write(font_data)
-
-    # تسجيل الخط العربي
+    
     pdfmetrics.registerFont(TTFont('Amiri', font_path))
-
+    
     def format_arabic(text):
         return get_display(arabic_reshaper.reshape(text))
-
-    # إضافة خلفية ملونة
-    p.setFillColorRGB(0.95, 0.95, 1)  # لون أزرق فاتح جداً
-    p.rect(0, 0, width, height, fill=1)
-
-    # إضافة عنوان للمستند
-    p.setFillColorRGB(0.2, 0.2, 0.6)  # لون أزرق داكن للعنوان
-    p.setFont('Amiri', 24)
-    title = format_arabic(f"ترجمات المجلد: {folder.name}")
-    p.drawRightString(width - 50, height - 50, title)
-
-    # إضافة خط أفقي تحت العنوان
-    p.setStrokeColorRGB(0.2, 0.2, 0.6)
-    p.line(50, height - 70, width - 50, height - 70)
-
-    y_position = height - 100
+    
+    def center_text(p, text, font_name, font_size, x_center, y):
+        """Helper function to center text at given x position"""
+        text_width = p.stringWidth(text, font_name, font_size)
+        x_pos = x_center - (text_width / 2)
+        p.drawString(x_pos, y, text)
+    
+    # Get all words and their translations
     words = Word.objects.filter(folder=folder)
-
+    
+    # Get all unique languages used in this folder
+    languages = []
     for word in words:
-        if y_position < 100:
+        word_languages = Translate.objects.filter(word=word).select_related('language').distinct()
+        for translate in word_languages:
+            lang_code = translate.language.code
+            lang_name = translate.language.get_code_display()
+            if lang_code not in [l[0] for l in languages]:
+                languages.append((lang_code, lang_name))
+    
+    # Table settings
+    margin = 40
+    table_width = width - (2 * margin)
+    row_height = 35
+    header_height = 50
+    
+    # Calculate column widths
+    if languages:
+        original_col_width = table_width * 0.3  # 30% for original word
+        trans_col_width = (table_width * 0.7) / len(languages)  # 70% divided among languages
+    else:
+        original_col_width = table_width
+        trans_col_width = 0
+    
+    def draw_page_header(p, page_num):
+        """Draw page title and number"""
+        # Page title
+        p.setFillColorRGB(0.1, 0.1, 0.4)
+        p.setFont('Amiri', 20)
+        title = format_arabic(f" {folder.name}")
+        p.drawRightString(width - margin, height - 30, title)
+        
+        # Page number
+        p.setFont('Amiri', 10)
+        page_text = format_arabic(f"{page_num}")
+        p.drawString(margin, height - 30, page_text)
+        
+        # Divider line
+        p.setStrokeColorRGB(0.3, 0.3, 0.6)
+        p.setLineWidth(1)
+        p.line(margin, height - 45, width - margin, height - 45)
+    
+    def draw_table_header(p, y_pos):
+        """Draw table header with language names"""
+        # Header background
+        p.setFillColorRGB(0.2, 0.3, 0.6)
+        p.rect(margin, y_pos - header_height, table_width, header_height, fill=1)
+        
+        # Header border
+        p.setStrokeColorRGB(0.1, 0.1, 0.3)
+        p.setLineWidth(2)
+        p.rect(margin, y_pos - header_height, table_width, header_height, fill=0)
+        
+        # Column headers
+        p.setFillColorRGB(1, 1, 1)  # White text
+        p.setFont('Amiri', 14)
+        
+        # Original word column header
+        original_header = format_arabic("original word")
+        p.drawRightString(margin + original_col_width - 10, y_pos - 25, original_header)
+        
+        # Language column headers
+        x_pos = margin + original_col_width
+        for lang_code, lang_name in languages:
+            # Vertical divider
+            p.setStrokeColorRGB(0.4, 0.4, 0.7)
+            p.setLineWidth(1)
+            p.line(x_pos, y_pos - header_height, x_pos, y_pos)
+            
+            # Language name - centered using helper function
+            lang_text = format_arabic(lang_name if lang_name else lang_code)
+            center_text(p, lang_text, 'Amiri', 14, x_pos + trans_col_width/2, y_pos - 25)
+            x_pos += trans_col_width
+        
+        return y_pos - header_height
+    
+    def draw_table_row(p, word, y_pos, row_num):
+        """Draw a single table row"""
+        # Alternating row colors
+        if row_num % 2 == 0:
+            p.setFillColorRGB(0.97, 0.97, 1)
+        else:
+            p.setFillColorRGB(0.92, 0.92, 0.98)
+        
+        p.rect(margin, y_pos - row_height, table_width, row_height, fill=1)
+        
+        # Row border
+        p.setStrokeColorRGB(0.7, 0.7, 0.8)
+        p.setLineWidth(0.5)
+        p.rect(margin, y_pos - row_height, table_width, row_height, fill=0)
+        
+        # Original word
+        p.setFillColorRGB(0.1, 0.1, 0.4)
+        p.setFont('Amiri', 12)
+        word_text = format_arabic(word.content)
+        p.drawRightString(margin + original_col_width - 10, y_pos - 22, word_text)
+        
+        # Translations
+        x_pos = margin + original_col_width
+        translations_dict = {}
+        
+        # Get all translations for this word
+        word_translations = Translate.objects.filter(word=word)
+        for trans in word_translations:
+            translations_dict[trans.language.code] = trans.translation
+        
+        for lang_code, lang_name in languages:
+            # Vertical divider
+            p.setStrokeColorRGB(0.7, 0.7, 0.8)
+            p.setLineWidth(0.5)
+            p.line(x_pos, y_pos - row_height, x_pos, y_pos)
+            
+            # Translation text
+            if lang_code in translations_dict:
+                p.setFillColorRGB(0.2, 0.4, 0.2)
+                p.setFont('Amiri', 11)
+                trans_text = format_arabic(translations_dict[lang_code])
+                # Center the text in the column using helper function
+                center_text(p, trans_text, 'Amiri', 11, x_pos + trans_col_width/2, y_pos - 22)
+            else:
+                # Empty cell marker - centered using helper function
+                p.setFillColorRGB(0.6, 0.6, 0.6)
+                p.setFont('Amiri', 11)
+                empty_text = "-"
+                center_text(p, empty_text, 'Amiri', 11, x_pos + trans_col_width/2, y_pos - 22)
+            
+            x_pos += trans_col_width
+        
+        return y_pos - row_height
+    
+    # Start generating PDF
+    y_position = height - 60
+    page_number = 1
+    row_count = 0
+    
+    # Draw first page header
+    draw_page_header(p, page_number)
+    
+    # Draw table header
+    y_position = draw_table_header(p, y_position)
+    
+    # Draw data rows
+    for word in words:
+        # Check if we need a new page
+        if y_position - row_height < 50:
             p.showPage()
-            p.setFillColorRGB(0.95, 0.95, 1)
-            p.rect(0, 0, width, height, fill=1)
-            y_position = height - 50
-
-        # رسم مربع خلفي للكلمة
-        p.setFillColorRGB(0.9, 0.9, 1)  # لون أزرق فاتح جداً للخلفية
-        p.roundRect(50, y_position - 10, width - 100, 40, 10, fill=1)
-
-        p.setFillColorRGB(0.2, 0.2, 0.6)  # لون أزرق داكن للنص
-        p.setFont('Amiri', 16)
-        word_text = format_arabic(f"{word.content}")
-        p.drawRightString(width - 60, y_position, word_text)
-        y_position -= 30
-
-        translations = Translate.objects.filter(word=word)
-        for translation in translations:
-            p.setFont('Amiri', 14)
-            translation_text = format_arabic(f"{translation.translation} :{translation.language.code}")
-            p.drawRightString(width - 70, y_position, translation_text)
-            y_position -= 25
-
-        y_position -= 20
-
-    # إضافة رقم الصفحة
-    p.setFont('Amiri', 10)
-    p.drawRightString(width - 50, 30, str(p.getPageNumber()))
-
+            page_number += 1
+            y_position = height - 60
+            
+            # Draw page header for new page
+            draw_page_header(p, page_number)
+            
+            # Draw table header on new page
+            y_position = draw_table_header(p, y_position)
+            row_count = 0  # Reset for alternating colors
+        
+        # Draw the row
+        y_position = draw_table_row(p, word, y_position, row_count)
+        row_count += 1
+    
+    # Final table border
+    p.setStrokeColorRGB(0.1, 0.1, 0.3)
+    p.setLineWidth(2)
+    p.line(margin, y_position, width - margin, y_position)
+    
     p.showPage()
     p.save()
-
+    
     return response
+
 
 
 @login_required
 def delete_folder(request, pk):
     folder = get_object_or_404(Folder, pk=pk)
     if folder.user != request.user:
-        # Or some other appropriate error page
         return HttpResponseForbidden("You do not have permission to delete this folder.")
     folder.delete()
     return redirect(reverse('folders_words:folders'))

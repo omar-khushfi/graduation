@@ -263,13 +263,11 @@ def edit_languages(request):
         has_error = False
         
         if formset.is_valid():
-            # حذف النماذج المحددة للحذف
             for form in formset.forms:
                 if form in formset.deleted_forms:
                     if form.instance.pk:
                         form.instance.delete()
             
-            # التحقق من تكرار اللغات قبل الحفظ
             language_codes = []
             for form in formset.forms:
                 if form not in formset.deleted_forms and form.cleaned_data.get('code'):
@@ -281,12 +279,10 @@ def edit_languages(request):
                     language_codes.append(code)
             
             if not has_error:
-                # حفظ النماذج الجديدة والمعدلة
                 instances = formset.save(commit=False)
                 for instance in instances:
                     instance.user = request.user
                     try:
-                        # التحقق من وجود لغة بنفس الرمز للمستخدم نفسه
                         if not instance.pk and Language.objects.filter(user=request.user, code=instance.code).exists():
                             has_error = True
                             messages.error(request, 'هذه اللغة موجودة بالفعل في قائمة لغاتك')
@@ -297,11 +293,9 @@ def edit_languages(request):
                         messages.error(request, 'حدث خطأ أثناء حفظ اللغات')
                         continue
                 
-                # التحقق من وجود لغة أم واحدة على الأقل
                 if not has_error:
                     native_languages = Language.objects.filter(user=request.user, is_native=True).count()
                     if native_languages == 0 and instances:
-                        # إذا لم يكن هناك لغة أم، اجعل اللغة الأولى هي اللغة الأم
                         first_language = Language.objects.filter(user=request.user).first()
                         if first_language:
                             first_language.is_native = True

@@ -73,7 +73,6 @@ class ExamView(LoginRequiredMixin,View):
                 answer_type, true_translation_input, text_to_voice, answer_input, word
             )
             is_true = processed_answer.startswith("true-")
-            # إذا كان الجواب صحيحاً نقوم بإزالة البادئة "true-"
             if is_true:
                 processed_answer = processed_answer[5:]
             Answer.objects.create(
@@ -84,33 +83,27 @@ class ExamView(LoginRequiredMixin,View):
                 is_true=is_true,
             )
         
-        # تحديث حالة السؤال في الاختبار
         word_exam = Word_Exam.objects.filter(exam=exam, word_id=word_id, done=False).first()
         if word_exam:
             word_exam.done = True
             word_exam.save()
         
-        # التحقق من انتهاء الاختبار
         if Word_Exam.objects.filter(exam=exam, done=False).count() < 1:
             exam.finish = True
             exam.save()
             context = self.build_result_context(user, exam)
             return render(request, "result.html", context)
         
-        # عرض السؤال التالي
         return self.get(request, lan)
     
     def process_answer(self, answer_type, true_translation, text_to_voice, current_answer, word):
        
         if answer_type == "voice" and text_to_voice:
-            # تنظيف النصوص من المسافات الزائدة أو الرموز غير المهمة
             true_translation_clean = true_translation.lower().strip()
             text_to_voice_clean = text_to_voice.lower().strip()
             
-            # حساب نسبة التشابه باستخدام WRatio
             similarity_score = fuzz.WRatio(true_translation_clean, text_to_voice_clean)
             
-            # إذا كانت نسبة التشابه أكبر من 80% نعتبرها صحيحة
             if similarity_score >= 80:
                 return "true-" + text_to_voice_clean
             return text_to_voice_clean
