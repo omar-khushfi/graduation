@@ -60,6 +60,17 @@ class Login_View(View):
             messages.error(request, 'User not found!')
             return render(request, self.template_name)    
 
+
+from .tokens import email_verification_token
+
+def activate(request, uid, token):
+    user = get_object_or_404(User, pk=uid)
+    user.is_verified = True
+    user.save()
+    return redirect('accounts:login_view')
+   
+
+
 class Signup_View(View):
     template_name = 'account_template/signup.html'
     
@@ -98,9 +109,36 @@ class Signup_View(View):
         )
         
         if user:
-            login(request, user)
-            return redirect("folders_words:folders")
+            token = email_verification_token.make_token(user)
+            uid = user.pk
+            activation_link = request.build_absolute_uri(
+                reverse("accounts:activate", kwargs={"uid": uid, "token": token})
+            )
 
+            email_body = f"""
+            Hi {user.username},
+
+            Thank you for registering!  
+            Please click the link below to activate your account:
+
+            {activation_link}
+
+            If you didn’t request this, you can ignore this email.
+            """
+
+            email_message = EmailMessage(
+                "Activate your account",          # عنوان الرسالة
+                email_body,                       # نص الرسالة
+                settings.EMAIL_HOST_USER,         # المرسل
+                [email],                          # المستلم
+            )
+            email_message.fail_silently = True
+            email_message.send()
+            login(request, user)
+            return redirect("accounts:activate_account")
+
+def active_account(request):
+    return render(request,"account_template/acitve_account.html")
 
 def get_user_answer_analytics(user):
     one_month_ago = timezone.now() - timedelta(days=30)
@@ -123,7 +161,11 @@ def get_user_answer_analytics(user):
 
 @login_required(login_url='/account/login/')
 def profile(request):
+    
     user = request.user
+    if user.is_verified == False:
+        return redirect("accounts:activate_account")
+
     analytics = get_user_answer_analytics(user)
     
     analytics_json = json.dumps(list(analytics))
@@ -140,7 +182,8 @@ def profile(request):
 @login_required(login_url='/account/login/')
 def update_profile(request):
     user = request.user
-    
+    if user.is_verified == False:
+        return redirect("accounts:activate_account")
     if request.method == 'POST':
         form = UserUpdateForm(request.POST, instance=user)
         if User.objects.filter(email=request.POST.get("email")) and request.POST.get("email") != user.email:
@@ -247,6 +290,8 @@ class ResetPassword(View):
 
 @login_required
 def edit_languages(request):
+    if request.user.is_verified == False:
+        return redirect("accounts:activate_account")
     LanguageFormSet = modelformset_factory(
         Language,
         form=LanguageForm,
@@ -319,14 +364,14 @@ def edit_languages(request):
     
     
     
-def Theme(request):
-    user=None
-    if request.POST.get('theme')==True:
-        user = User.objects.get(id=request.user.id)
-        user.theme=True
-    else:
-       user = User.objects.get(id=request.user.id)
-       user.theme=False
-    user.save()
-    return redirect("/")      
+# def Theme(request):
+#     user=None
+#     if request.POST.get('theme')==True:
+#         user = User.objects.get(id=request.user.id)
+#         user.theme=True
+#     else:
+#        user = User.objects.get(id=request.user.id)
+#        user.theme=False
+#     user.save()
+#     return redirect("/")      
         

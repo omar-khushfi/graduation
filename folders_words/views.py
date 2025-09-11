@@ -23,14 +23,51 @@ from bidi.algorithm import get_display
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 
-def translate_text_mymemory(source_text, source_lang, target_lang):
-    url = f"https://api.mymemory.translated.net/get?q={source_text}&langpair={source_lang}|{target_lang}"
-    response = requests.get(url)
+# def translate_text_mymemory(source_text, source_lang, target_lang):
+#     url = f"https://api.mymemory.translated.net/get?q={source_text}&langpair={source_lang}|{target_lang}"
+#     response = requests.get(url)
     
-    if response.status_code == 200:
-        return response.json()['responseData']['translatedText']
-    else:
-        return "Error: Could not translate."
+#     if response.status_code == 200:
+#         return response.json()['responseData']['translatedText']
+#     else:
+#         return "Error: Could not translate."
+    
+
+def translate_text_mymemory(source_text, source_lang=None , target_lang=None):
+  
+    
+    # Base URL for the API
+    base_url = "https://ftapi.pythonanywhere.com/translate"
+    
+    # Use parameters for the GET request
+    params = {
+        "sl": source_lang,
+        "dl": target_lang,
+        "text": source_text
+    }
+
+    try:
+        # Send the GET request
+        response = requests.get(base_url, params=params)
+        
+        # Raise an exception for HTTP errors (4xx or 5xx)
+        response.raise_for_status()
+        
+        # Parse the JSON response
+        data = response.json()
+        
+        # Extract the translated text from the JSON structure
+        if "destination-text" in data:
+            return data["destination-text"]
+        else:
+            return "Error: Could not find translated text in the response."
+    
+    except requests.exceptions.RequestException as e:
+        # Handle network or HTTP errors
+        return f"Error: Could not translate. {e}"
+
+
+
 def generate_pronunciation(word, language, user_id):
     sanitized_word = re.sub(r'[\\/*?:"<>|]', '', word)
     language_code = language.code
@@ -62,6 +99,8 @@ class folders(LoginRequiredMixin,View):
     
     def get(self,request):
         user=request.user
+        if user.is_verified == False:
+            return redirect("accounts:activate_account")
         folders=Folder.objects.filter(user=user.id)
         
         paginator=Paginator(folders,8) 
@@ -81,6 +120,8 @@ class folders(LoginRequiredMixin,View):
         return render(request,'folders.html',context)
     def post(self,request):
         user=request.user
+        if user.is_verified == False:
+            return redirect("accounts:activate_account")
         if request.POST.get("new_folder"):
             new_folder=request.POST.get("new_folder")
             
@@ -116,6 +157,8 @@ class folder(LoginRequiredMixin, View):
 
     def get(self, request, pk):
         user = request.user
+        if user.is_verified == False:
+            return redirect("accounts:activate_account")
         folder = get_object_or_404(Folder, pk=pk)
         languages = Language.objects.filter(user=user)
         words = Word.objects.filter(folder=folder, user=user)
@@ -165,12 +208,17 @@ class AddWordView(LoginRequiredMixin, View):
     login_url = '/account/login/'
 
     def get(self,request,pk):
+        user = request.user
+        if user.is_verified == False:
+            return redirect("accounts:activate_account")
         folder=get_object_or_404(Folder,pk=pk)
         return render(request,'enter_word.html')
     def post(self,request,pk):
         word=request.POST.get('word')
         
         user=request.user
+        if user.is_verified == False:
+            return redirect("accounts:activate_account")
         folder=get_object_or_404(Folder,pk=pk)
         languages=Language.objects.filter(user=user)
       
@@ -199,6 +247,8 @@ class edit_word(LoginRequiredMixin,View):
 
     def get(self,request,pk,id):
         user=request.user
+        if user.is_verified == False:
+            return redirect("accounts:activate_account")
         word=get_object_or_404(Word,id=id)
         translates=Translate.objects.filter(word=word,user=user)
         languages=Language.objects.filter(user=user)
@@ -221,6 +271,8 @@ class edit_word(LoginRequiredMixin,View):
         
     def post(self,request,pk,id):
         user=request.user
+        if user.is_verified == False:
+            return redirect("accounts:activate_account")
         word=get_object_or_404(Word,id=id)
         items=request.POST.items()
         updated = False
@@ -258,13 +310,18 @@ class edit_word(LoginRequiredMixin,View):
 
 @login_required
 def delete_word(request, pk, word_id):
+    user = request.user
+    if user.is_verified == False:
+        return redirect("accounts:activate_account")
     word = get_object_or_404(Word, pk=word_id)
     word.delete()
-    print(pk,word_id)
     return JsonResponse({'success': True})
 
 @login_required
 def delete_selected_words(request):
+    user = request.user
+    if user.is_verified == False:
+        return redirect("accounts:activate_account")
     try:
         data = json.loads(request.body)  
         word_ids = data.get('word_ids', [])
@@ -279,6 +336,9 @@ from django.urls import reverse
 
 @login_required
 def generate_pdf(request, folder_id):
+    user = request.user
+    if user.is_verified == False:
+        return redirect("accounts:activate_account")
     folder = get_object_or_404(Folder, id=folder_id)
     
     response = HttpResponse(content_type='application/pdf')
@@ -484,8 +544,226 @@ def generate_pdf(request, folder_id):
 
 @login_required
 def delete_folder(request, pk):
+    user = request.user
+    if user.is_verified == False:
+        return redirect("accounts:activate_account")
     folder = get_object_or_404(Folder, pk=pk)
     if folder.user != request.user:
         return HttpResponseForbidden("You do not have permission to delete this folder.")
     folder.delete()
     return redirect(reverse('folders_words:folders'))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import google.generativeai as genai
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4, letter
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.lib import colors
+import os
+import requests
+from pro import settings
+from .models import Folder, Word, Translate, Language
+import arabic_reshaper
+from bidi.algorithm import get_display
+import textwrap
+
+# إعداد Gemini API
+GEMINI_API_KEY = "AIzaSyB_c2rxgT5iHdJn9GjCgzSjM4KRO6groxg"
+genai.configure(api_key=GEMINI_API_KEY)
+
+
+
+
+
+def wrap_text(text, width=80):
+    lines = []
+    paragraphs = text.split('\n')
+    for paragraph in paragraphs:
+        if paragraph.strip():
+            wrapped_lines = textwrap.wrap(paragraph, width=width)
+            lines.extend(wrapped_lines)
+        else:
+            lines.append('')
+    return lines
+
+@login_required
+def generate_language_learning_pdf(request, folder_id):
+ 
+    user = request.user
+    
+    if not user.is_verified:
+        return HttpResponse("Account not verified", status=403)
+    
+    try:
+        folder = get_object_or_404(Folder, id=folder_id, user=user)
+        
+        words = Word.objects.filter(folder=folder, user=user)
+        
+        if not words.exists():
+            return HttpResponse("No words found in this folder", status=404)
+        
+        native_language = Language.objects.get(user=user, is_native=True)
+        target_languages = Language.objects.filter(user=user, is_native=False)
+        
+        if not target_languages.exists():
+            return HttpResponse("No target languages found", status=404)
+        
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{folder.name}_english_paragraphs.pdf"'
+        
+        width, height = A4
+        p = canvas.Canvas(response, pagesize=A4)
+        
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        
+        p.setFillColorRGB(0.1, 0.1, 0.4)
+        p.setFont('Helvetica-Bold', 24)
+        title = f"Language Learning Paragraphs - {folder.name}"
+        p.drawCentredString(width/2, height - 60, title)
+        
+        p.setStrokeColorRGB(0.3, 0.3, 0.6)
+        p.setLineWidth(2)
+        p.line(40, height - 80, width - 40, height - 80)
+        
+        y_position = height - 120
+        page_number = 1
+        
+        for lang_index, target_language in enumerate(target_languages):
+            
+            if y_position < 200:
+                p.showPage()
+                page_number += 1
+                y_position = height - 60
+            
+            translations = Translate.objects.filter(
+                word__in=words,
+                language=target_language,
+                user=user
+            ).select_related('word')
+            
+            word_list = []
+            
+            for translate in translations[:20]:  
+                if translate.translation:
+                    word_list.append(translate.translation)
+            
+            if not word_list:
+                continue
+            
+            p.setFillColorRGB(0.2, 0.4, 0.8)
+            p.setFont('Helvetica-Bold', 20)
+            lang_title = f"{target_language.get_code_display()} - {target_language.code.upper()}"
+            p.drawCentredString(width/2, y_position, lang_title)
+            y_position -= 40
+            
+            p.setStrokeColorRGB(0.2, 0.4, 0.8)
+            p.setLineWidth(1)
+            p.line(40, y_position + 10, width - 40, y_position + 10)
+            y_position -= 30
+            
+            try:
+                paragraph_prompt = f"""
+Create a comprehensive educational paragraph (8-12 sentences) in {target_language.get_code_display()} using as many as possible of the following words:
+
+Words: {', '.join(word_list[:15])}
+
+Requirements:
+- The paragraph should be informative and educational
+- Use as many of the given words as possible
+- Make the text natural and fluent
+- Suitable for language learners
+- Write directly in the target language, don't translate
+- Make the paragraph longer and more detailed
+"""
+                
+                paragraph_response = model.generate_content(
+                    paragraph_prompt,
+                    generation_config=genai.types.GenerationConfig(
+                        candidate_count=1,
+                        max_output_tokens=1000,  
+                        temperature=0.7,
+                    )
+                )
+                
+                generated_paragraph = paragraph_response.text.strip()
+                
+                p.setFillColorRGB(0, 0, 0)
+                p.setFont('Helvetica', 12) 
+                
+                paragraph_lines = wrap_text(generated_paragraph, 80)  
+                
+                for line in paragraph_lines:
+                    if y_position < 100:
+                        p.showPage()
+                        page_number += 1
+                        y_position = height - 60
+                        p.setFont('Helvetica', 12)  
+                    
+                    p.drawString(50, y_position, line)
+                    y_position -= 18  
+                
+                y_position -= 30
+                
+                if lang_index < len(target_languages) - 1:
+                    y_position -= 30
+                    p.setStrokeColorRGB(0.8, 0.8, 0.8)
+                    p.setLineWidth(1)
+                    p.line(100, y_position, width - 100, y_position)
+                    y_position -= 40
+                
+            except Exception as e:
+                print(f"Error generating content for {target_language.code}: {e}")
+                p.setFillColorRGB(0.8, 0.2, 0.2)
+                p.setFont('Helvetica', 12)
+                error_msg = f"Error generating content for this language: {str(e)}"
+                p.drawString(50, y_position, error_msg)
+                y_position -= 40
+        
+        p.setFont('Helvetica', 10)
+        p.setFillColorRGB(0.5, 0.5, 0.5)
+        page_text = f"Page {page_number}"
+        p.drawCentredString(width/2, 30, page_text)
+        
+        p.showPage()
+        p.save()
+        
+        return response
+        
+    except Exception as e:
+        return HttpResponse(f"Error generating PDF: {str(e)}", status=500)

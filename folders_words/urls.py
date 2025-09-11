@@ -16,4 +16,11 @@ urlpatterns = [
     path('generate_pdf/<int:folder_id>/', views.generate_pdf, name='generate_pdf'),
     path('delete_folder/<int:pk>/', views.delete_folder, name='delete_folder'),
 
+
+
+ path('folder/<int:folder_id>/generate-learning-pdf/', 
+         views.generate_language_learning_pdf, 
+         name='generate_language_learning_pdf'),
+    
+    
 ]

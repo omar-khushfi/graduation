@@ -14,11 +14,16 @@ class CreateExamView(LoginRequiredMixin,View):
     login_url = 'account/login/'  
 
     def get(self, request):
+        user = request.user
+        if user.is_verified == False:
+            return redirect("accounts:activate_account")
         languages = Language.objects.filter(user=request.user)
         return render(request, "create_exam.html", {"languages": languages})
     
     def post(self, request):
         user = request.user
+        if user.is_verified == False:
+            return redirect("accounts:activate_account")
         language_id = request.POST.get("lang")
         language = Language.objects.get(id=language_id, user=user)
         exam = self.get_or_create_exam(user, language)
@@ -44,11 +49,12 @@ class ExamView(LoginRequiredMixin,View):
 
     def get(self, request, lan):
         user = request.user
+        if user.is_verified == False:
+            return redirect("accounts:activate_account")
         language = Language.objects.get(id=lan)
         now = datetime.now()
         exam = Exam.objects.filter(user=user, language=language, finish=False).first()
         word_exam = Word_Exam.objects.filter(exam=exam, done=False).first()
-        print(word_exam)
         if not word_exam:
             context = self.build_result_context(user, exam)
             return render(request, "result.html", context)
@@ -58,6 +64,8 @@ class ExamView(LoginRequiredMixin,View):
     
     def post(self, request, lan):
         user = request.user
+        if user.is_verified == False:
+          return redirect("accounts:activate_account")
         language = Language.objects.get(id=lan)
         exam_id = request.POST.get("exam")
         exam = Exam.objects.get(id=exam_id)
@@ -112,9 +120,7 @@ class ExamView(LoginRequiredMixin,View):
 
     
     def build_result_context(self, user, exam):
-        """
-        بناء سياق النتيجة عن طريق جلب الإجابات وترجمتها الصحيحة.
-        """
+        
         answers_result = {}
         answers = Answer.objects.filter(user=user, exam=exam)
         for answer in answers:
@@ -123,9 +129,7 @@ class ExamView(LoginRequiredMixin,View):
         return {"answers_result": answers_result}
     
     def get_exam_context(self, user, exam, language, word_exam):
-        """
-        بناء سياق السؤال الحالي مع جلب الترجمات الصحيحة والخاطئة.
-        """
+        
         true_translate = Translate.objects.get(user=user, word=word_exam.word, language=language)
         false_translations = list(
             Translate.objects.filter(user=user, language=language).exclude(word=word_exam.word)[:2]

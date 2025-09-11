@@ -12,7 +12,10 @@ urlpatterns = [
     path('forgot-password/', views.ForgotPassword.as_view(), name='forgot-password'),
     path('password-reset-sent/<str:reset_id>/', views.PasswordResetSent, name='password-reset-sent'),
     path('reset-password/<str:reset_id>/', views.ResetPassword.as_view(), name='reset-password'),
-   
+    path("activate/<int:uid>/<str:token>/", views.activate, name="activate"),
+    path("activate_account//", views.active_account, name="activate_account"),
+    
+
     
     path('profile/',views.profile,name="profile"),
     path('update_profile/', views.update_profile, name='update_profile'),

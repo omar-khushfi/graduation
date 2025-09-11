@@ -12,7 +12,9 @@ class User(AbstractUser):
     country = models.CharField(max_length=100, choices=COUNTRY_CHOICES, blank=True, null=True)
     age=models.IntegerField(blank=True, null=True)
     theme=models.BooleanField(default=0)
+    is_verified=models.BooleanField(default=0)
     REQUIRED_FIElDS=['country']
+    
     def __str__(self):
         return self.username
 

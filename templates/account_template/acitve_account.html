@@ -1,0 +1,18 @@
+{% extends 'account_template/base_account.html' %}
+{% load static %}
+{% block title %}Reset Link Sent{% endblock title %}
+{% block linkstatic %}
+<link rel="stylesheet" href="{% static 'css/account_style.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock linkstatic %}
+{% block content %}
+<div class="content">
+<div class="form-container">
+    <div class="reset-confirmation">
+        <h1 class="form-title">Link Sent</h1>
+        <p>An acitvate link has been sent to your email.!</p>
+       
+    </div>
+</div>
+</div>
+{% endblock %}
